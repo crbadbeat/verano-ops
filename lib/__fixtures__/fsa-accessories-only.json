@@ -1,0 +1,877 @@
+{
+ "rows": [
+  {
+   "page": 1,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 707,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Gallery: Testville, FL"
+    },
+    {
+     "x": 224,
+     "text": "GTL ID: D-0001"
+    },
+    {
+     "x": 388,
+     "text": "REP ID: D-0002"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 673,
+   "cells": [
+    {
+     "x": 60,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 643,
+   "cells": [
+    {
+     "x": 60,
+     "text": "CUSTOMER(S):"
+    },
+    {
+     "x": 129,
+     "text": "LAST: Testcustomer"
+    },
+    {
+     "x": 306,
+     "text": "FIRST: Pat"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 624,
+   "cells": [
+    {
+     "x": 60,
+     "text": "PHONE: 5555550100"
+    },
+    {
+     "x": 183,
+     "text": "CELL:"
+    },
+    {
+     "x": 306,
+     "text": "EMAIL: pat@example.com"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 604,
+   "cells": [
+    {
+     "x": 60,
+     "text": "BILLING ADDRESS:"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 585,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Address: 1 Test Street"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 566,
+   "cells": [
+    {
+     "x": 60,
+     "text": "CITY: Testville"
+    },
+    {
+     "x": 224,
+     "text": "STATE: FL"
+    },
+    {
+     "x": 388,
+     "text": "ZIP: 00000"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 543,
+   "cells": [
+    {
+     "x": 60,
+     "text": "DELIVERY ADDRESS:"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 520,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Address: 2 Test Avenue"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 501,
+   "cells": [
+    {
+     "x": 60,
+     "text": "CITY: Testburg"
+    },
+    {
+     "x": 224,
+     "text": "STATE: FL"
+    },
+    {
+     "x": 388,
+     "text": "ZIP: 00001"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 470,
+   "cells": [
+    {
+     "x": 60,
+     "text": "ITEM PURCHASED AND QUANTITY"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 438,
+   "cells": [
+    {
+     "x": 413,
+     "text": "Temporary"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 432,
+   "cells": [
+    {
+     "x": 68,
+     "text": "Item"
+    },
+    {
+     "x": 291,
+     "text": "As is"
+    },
+    {
+     "x": 329,
+     "text": "Cash & Carry"
+    },
+    {
+     "x": 496,
+     "text": "Quantity"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 426,
+   "cells": [
+    {
+     "x": 415,
+     "text": "Stock List"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 396,
+   "cells": [
+    {
+     "x": 68,
+     "text": "Briquettes w/ Flame tamer GSL (1 piece)"
+    },
+    {
+     "x": 513,
+     "text": "4"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 394,
+   "cells": [
+    {
+     "x": 295,
+     "text": "☐"
+    },
+    {
+     "x": 352,
+     "text": "☐"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 342,
+   "cells": [
+    {
+     "x": 60,
+     "text": "REQUESTED DELIVERY TIMEFRAME"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 252,
+   "cells": [
+    {
+     "x": 60,
+     "text": "state Customers must accept delivery on the date designated by Verano without exception. Delivery shall be made only"
+    }
+   ]
+  },
+  {
+   "page": 6,
+   "y": 246,
+   "cells": [
+    {
+     "x": 60,
+     "text": "last two pages of the Mykonos Packet provided with your Final Sales Agreement."
+    }
+   ]
+  },
+  {
+   "page": 7,
+   "y": 348,
+   "cells": [
+    {
+     "x": 60,
+     "text": "last two pages of the Monaco Packet provided with your Final Sales Agreement."
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 708,
+   "cells": [
+    {
+     "x": 62,
+     "text": "6. Supervision - Your GC must be physically present during your Monaco’s full-day installation to determine and"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 696,
+   "cells": [
+    {
+     "x": 74,
+     "text": "supervise the means and methods for above-listed work."
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 676,
+   "cells": [
+    {
+     "x": 60,
+     "text": "WELCOME TO MONACO!"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 655,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Please direct all questions along the way to your Regional Concierge Specialist, and they’ll have you grilling in"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 644,
+   "cells": [
+    {
+     "x": 60,
+     "text": "VERANO in no time!"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 607,
+   "cells": [
+    {
+     "x": 60,
+     "text": "VERANO CARES™ COURTESY HOME VISIT PROGRAM"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 583,
+   "cells": [
+    {
+     "x": 60,
+     "text": "At Verano Outdoor Living, your experience does not end at delivery. Our commitment to customer satisfaction extends well"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 571,
+   "cells": [
+    {
+     "x": 60,
+     "text": "beyond installation through our"
+    },
+    {
+     "x": 191,
+     "text": "Verano Cares™ Courtesy Home Visit Program"
+    },
+    {
+     "x": 392,
+     "text": "."
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 550,
+   "cells": [
+    {
+     "x": 60,
+     "text": "As part of this program, Verano Outdoor Living offers a complimentary, no-questions-asked courtesy home visit within the first six"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 539,
+   "cells": [
+    {
+     "x": 60,
+     "text": "months of purchase to assist with:"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 518,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Warranty-related service items"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 507,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Troubleshooting operational questions"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 495,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Non-warranty adjustments or minor service needs"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 484,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Guidance on using integrated features such as lighting, audio, television, refrigeration, or accessories"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 472,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Instruction on proper cleaning, burner adjustment, and general product care"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 451,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Our goal is simple — to ensure you feel confident, comfortable, and fully enjoying your outdoor living investment."
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 431,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Verano Cares™ visits are intended to provide support, education, and minor adjustments where reasonably possible"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 419,
+   "cells": [
+    {
+     "x": 60,
+     "text": "during a standard service appointment. In the event that additional parts, materials, repairs, or non-covered services are"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 408,
+   "cells": [
+    {
+     "x": 60,
+     "text": "required, Verano Outdoor Living will provide a written estimate for customer approval prior to performing additional work."
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 387,
+   "cells": [
+    {
+     "x": 60,
+     "text": "This program reflects our continued commitment to excellence, long-term relationships, and the Verano experience."
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 358,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Customer signature"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 356,
+   "cells": [
+    {
+     "x": 395,
+     "text": "Date"
+    },
+    {
+     "x": 480,
+     "text": "Sales rep"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 319,
+   "cells": [
+    {
+     "x": 488,
+     "text": "Sample Rep"
+    }
+   ]
+  },
+  {
+   "page": 8,
+   "y": 318,
+   "cells": [
+    {
+     "x": 403,
+     "text": "07/21/2026"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "Sample Rep"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 692,
+   "cells": [
+    {
+     "x": 60,
+     "text": "FINAL SALES AGREEMENT - SALES TOTAL"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 668,
+   "cells": [
+    {
+     "x": 60,
+     "text": "All sales are final. All payments are non-refundable. Customer agrees to all attached and incorporated terms"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 656,
+   "cells": [
+    {
+     "x": 60,
+     "text": "& conditions, delivery scheduling email policy, warranty terms, and line drawings."
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 635,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Order total"
+    },
+    {
+     "x": 361,
+     "text": "$357.00"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 622,
+   "cells": [
+    {
+     "x": 60,
+     "text": "PFL Trade-in credit"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 609,
+   "cells": [
+    {
+     "x": 60,
+     "text": "PFL Trade-in fee"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 595,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Storage fee"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 582,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Subtotal"
+    },
+    {
+     "x": 361,
+     "text": "$357.00"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 569,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Sales tax"
+    },
+    {
+     "x": 361,
+     "text": "$24.99"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 556,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Delivery/freight"
+    },
+    {
+     "x": 361,
+     "text": "$96.66"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 543,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Total purchase price"
+    },
+    {
+     "x": 361,
+     "text": "$478.65"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 530,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Down payment"
+    },
+    {
+     "x": 361,
+     "text": "$478.65"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 517,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Balance due"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 505,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Address verification required prior to delivery"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 475,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Customer signature"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 473,
+   "cells": [
+    {
+     "x": 371,
+     "text": "Date"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 435,
+   "cells": [
+    {
+     "x": 378,
+     "text": "07/21/2026"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 390,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Sales signature"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 388,
+   "cells": [
+    {
+     "x": 371,
+     "text": "Sales rep"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 351,
+   "cells": [
+    {
+     "x": 378,
+     "text": "Sample Rep"
+    }
+   ]
+  }
+ ],
+ "text": "Verano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nFLORIDA DEPOSIT FSA\nGallery: Testville, FL\tGTL ID: D-0001\tREP ID: D-0002\nFLORIDA DEPOSIT FSA\nCUSTOMER(S):\tLAST: Testcustomer\tFIRST: Pat\nPHONE: 5555550100\tCELL:\tEMAIL: pat@example.com\nBILLING ADDRESS:\nAddress: 1 Test Street\nCITY: Testville\tSTATE: FL\tZIP: 00000\nDELIVERY ADDRESS:\nAddress: 2 Test Avenue\nCITY: Testburg\tSTATE: FL\tZIP: 00001\nITEM PURCHASED AND QUANTITY\nTemporary\nItem\tAs is\tCash & Carry\tQuantity\nStock List\nBriquettes w/ Flame tamer GSL (1 piece)\t4\n☐\t☐\nREQUESTED DELIVERY TIMEFRAME\nstate Customers must accept delivery on the date designated by Verano without exception. Delivery shall be made only\nlast two pages of the Mykonos Packet provided with your Final Sales Agreement.\nlast two pages of the Monaco Packet provided with your Final Sales Agreement.\nVerano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nFLORIDA DEPOSIT FSA\n6. Supervision - Your GC must be physically present during your Monaco’s full-day installation to determine and\nsupervise the means and methods for above-listed work.\nWELCOME TO MONACO!\nPlease direct all questions along the way to your Regional Concierge Specialist, and they’ll have you grilling in\nVERANO in no time!\nVERANO CARES™ COURTESY HOME VISIT PROGRAM\nAt Verano Outdoor Living, your experience does not end at delivery. Our commitment to customer satisfaction extends well\nbeyond installation through our\tVerano Cares™ Courtesy Home Visit Program\t.\nAs part of this program, Verano Outdoor Living offers a complimentary, no-questions-asked courtesy home visit within the first six\nmonths of purchase to assist with:\nWarranty-related service items\nTroubleshooting operational questions\nNon-warranty adjustments or minor service needs\nGuidance on using integrated features such as lighting, audio, television, refrigeration, or accessories\nInstruction on proper cleaning, burner adjustment, and general product care\nOur goal is simple — to ensure you feel confident, comfortable, and fully enjoying your outdoor living investment.\nVerano Cares™ visits are intended to provide support, education, and minor adjustments where reasonably possible\nduring a standard service appointment. In the event that additional parts, materials, repairs, or non-covered services are\nrequired, Verano Outdoor Living will provide a written estimate for customer approval prior to performing additional work.\nThis program reflects our continued commitment to excellence, long-term relationships, and the Verano experience.\nCustomer signature\nDate\tSales rep\nSample Rep\n07/21/2026\nVerano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nSample Rep\nFINAL SALES AGREEMENT - SALES TOTAL\nAll sales are final. All payments are non-refundable. Customer agrees to all attached and incorporated terms\n& conditions, delivery scheduling email policy, warranty terms, and line drawings.\nOrder total\t$357.00\nPFL Trade-in credit\t$0.00\nPFL Trade-in fee\t$0.00\nStorage fee\t$0.00\nSubtotal\t$357.00\nSales tax\t$24.99\nDelivery/freight\t$96.66\nTotal purchase price\t$478.65\nDown payment\t$478.65\nBalance due\t$0.00\nAddress verification required prior to delivery\nCustomer signature\nDate\n07/21/2026\nSales signature\nSales rep\nSample Rep"
+}

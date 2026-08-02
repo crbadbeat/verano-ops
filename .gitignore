@@ -1,0 +1,66 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# Customer documents. A signed Final Sales Agreement carries the customer's name,
+# email, phone and home address — it must never end up in the repo. Test fixtures
+# live in lib/__fixtures__ and are redacted (see generate-fixtures.test.ts).
+*.pdf
+!public/**/*.pdf
+
+# Local data exports uploaded through the UI (full item master + by-location
+# inventory counts). Reference data, not code — keep it out of git history.
+/item-master-template.csv
+/inventory-by-location-template.csv
+
+# Sensitive HR / payroll exports (ADP employee master, etc.) — MUST never be
+# committed. PII + salaries. Handled locally only, then deleted.
+/Employee Master.csv
+*[Ee]mployee*[Mm]aster*.csv
+*ADP*.csv
+*adp*.csv
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+.vercel
+.env*
+
+# Local agent tooling
+.claude/

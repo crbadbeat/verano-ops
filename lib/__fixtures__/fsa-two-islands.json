@@ -1,0 +1,1483 @@
+{
+ "rows": [
+  {
+   "page": 1,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 511,
+   "cells": [
+    {
+     "x": 190,
+     "text": "FINAL SALE AGREEMENT"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 487,
+   "cells": [
+    {
+     "x": 242,
+     "text": "ORDER #14454"
+    }
+   ]
+  },
+  {
+   "page": 1,
+   "y": 463,
+   "cells": [
+    {
+     "x": 197,
+     "text": "07/20/26 03:39 PM (EDT)"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 707,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Gallery: Testville, FL"
+    },
+    {
+     "x": 224,
+     "text": "GTL ID: D-0001"
+    },
+    {
+     "x": 388,
+     "text": "REP ID: D-0002"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 673,
+   "cells": [
+    {
+     "x": 60,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 643,
+   "cells": [
+    {
+     "x": 60,
+     "text": "CUSTOMER(S):"
+    },
+    {
+     "x": 129,
+     "text": "LAST: Testcustomer"
+    },
+    {
+     "x": 306,
+     "text": "FIRST: Pat"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 624,
+   "cells": [
+    {
+     "x": 60,
+     "text": "PHONE: 5555550100"
+    },
+    {
+     "x": 183,
+     "text": "CELL:"
+    },
+    {
+     "x": 306,
+     "text": "EMAIL: pat@example.com"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 604,
+   "cells": [
+    {
+     "x": 60,
+     "text": "BILLING ADDRESS:"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 585,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Address: 1 Test Street"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 566,
+   "cells": [
+    {
+     "x": 60,
+     "text": "CITY: Testville"
+    },
+    {
+     "x": 224,
+     "text": "STATE: FL"
+    },
+    {
+     "x": 388,
+     "text": "ZIP: 00000"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 543,
+   "cells": [
+    {
+     "x": 60,
+     "text": "DELIVERY ADDRESS:"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 520,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Address: 2 Test Avenue"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 501,
+   "cells": [
+    {
+     "x": 60,
+     "text": "CITY: Testburg"
+    },
+    {
+     "x": 224,
+     "text": "STATE: FL"
+    },
+    {
+     "x": 388,
+     "text": "ZIP: 00001"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 470,
+   "cells": [
+    {
+     "x": 60,
+     "text": "ITEM PURCHASED AND QUANTITY"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 438,
+   "cells": [
+    {
+     "x": 413,
+     "text": "Temporary"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 432,
+   "cells": [
+    {
+     "x": 68,
+     "text": "Item"
+    },
+    {
+     "x": 291,
+     "text": "As is"
+    },
+    {
+     "x": 329,
+     "text": "Cash & Carry"
+    },
+    {
+     "x": 496,
+     "text": "Quantity"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 426,
+   "cells": [
+    {
+     "x": 415,
+     "text": "Stock List"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 398,
+   "cells": [
+    {
+     "x": 68,
+     "text": "OWN CONFIGURATION"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 387,
+   "cells": [
+    {
+     "x": 79,
+     "text": "Grill Island:"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 375,
+   "cells": [
+    {
+     "x": 90,
+     "text": "GX10 ( double )"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 364,
+   "cells": [
+    {
+     "x": 90,
+     "text": "CSL-32 Cocktail Station"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 352,
+   "cells": [
+    {
+     "x": 90,
+     "text": "CSL-32 Cocktail Station"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 341,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Storage Door"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 329,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Storage Door"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 318,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Outlet"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 306,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Double Drawer"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 294,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Bar Fridge - Stainless Trim Kit"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 283,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Milano: Calce"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 271,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Volcanic Ash"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 260,
+   "cells": [
+    {
+     "x": 79,
+     "text": "Bar Island:"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 248,
+   "cells": [
+    {
+     "x": 90,
+     "text": "MAUI 10"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 243,
+   "cells": [
+    {
+     "x": 514,
+     "text": "1"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 241,
+   "cells": [
+    {
+     "x": 295,
+     "text": "☐"
+    },
+    {
+     "x": 352,
+     "text": "☐"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 237,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Outlet"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 225,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Bar Fridge - Stainless Trim Kit"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 213,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Bar Fridge - Stainless Trim Kit"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 202,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Professional Stainless Steel Foot Rail"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 190,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Milano: Calce"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 179,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Volcanic Ash"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 167,
+   "cells": [
+    {
+     "x": 79,
+     "text": "Combo:"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 156,
+   "cells": [
+    {
+     "x": 90,
+     "text": "St. Barth - Espresso"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 144,
+   "cells": [
+    {
+     "x": 79,
+     "text": "Happy Hours:"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 133,
+   "cells": [
+    {
+     "x": 90,
+     "text": "LED Lighting"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 121,
+   "cells": [
+    {
+     "x": 90,
+     "text": "70 Inch TV Package"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 109,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Tatta Bar Stool - Santorini White (8)"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 98,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Stereo Marine Grade Speakers w/LED"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 86,
+   "cells": [
+    {
+     "x": 90,
+     "text": "Lighting"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 52,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Verano for Life"
+    }
+   ]
+  },
+  {
+   "page": 2,
+   "y": 31,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Platinum membership discount applied"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 692,
+   "cells": [
+    {
+     "x": 60,
+     "text": "REQUESTED DELIVERY TIMEFRAME"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 667,
+   "cells": [
+    {
+     "x": 60,
+     "text": "3-6 WEEKS"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 656,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Minimum Lead Time"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 635,
+   "cells": [
+    {
+     "x": 60,
+     "text": "FACTORY STORAGE"
+    }
+   ]
+  },
+  {
+   "page": 3,
+   "y": 623,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Up to 6 months"
+    }
+   ]
+  },
+  {
+   "page": 5,
+   "y": 252,
+   "cells": [
+    {
+     "x": 60,
+     "text": "state Customers must accept delivery on the date designated by Verano without exception. Delivery shall be made only"
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 662,
+   "cells": [
+    {
+     "x": 60,
+     "text": "last two pages of the Mykonos Packet provided with your Final Sales Agreement."
+    }
+   ]
+  },
+  {
+   "page": 9,
+   "y": 106,
+   "cells": [
+    {
+     "x": 60,
+     "text": "last two pages of the Monaco Packet provided with your Final Sales Agreement."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "FLORIDA DEPOSIT FSA"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 708,
+   "cells": [
+    {
+     "x": 60,
+     "text": "3 to 5 business days after you either: (i) pay in full the Total Purchase Price; or (ii) pay 50% of the Total Purchase Price"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 696,
+   "cells": [
+    {
+     "x": 60,
+     "text": "plus a non-refundable $250 fee for the engineered drawings."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 676,
+   "cells": [
+    {
+     "x": 60,
+     "text": "YOUR GENERAL CONTRACTOR’S RESPONSIBILITIES"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 655,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Your General Contractor (GC) shall be solely selected by you and your GC shall be solely and fully responsible for the"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 644,
+   "cells": [
+    {
+     "x": 60,
+     "text": "following:"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 623,
+   "cells": [
+    {
+     "x": 64,
+     "text": "1. Permits – Your GC must determine, apply for and obtain all required governmental permits, including without"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 611,
+   "cells": [
+    {
+     "x": 74,
+     "text": "limitation, permits required for electrical, plumbing, gas, concrete/foundation, etc."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 600,
+   "cells": [
+    {
+     "x": 62,
+     "text": "2. Electrical – Your GC must install and connect all required electrical wiring. Your Monaco will have pre-drilled holes"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 588,
+   "cells": [
+    {
+     "x": 74,
+     "text": "for the puck lighting system and a hole for the ceiling fan will be cut out on-site."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 577,
+   "cells": [
+    {
+     "x": 63,
+     "text": "3. Plumbing - If your Monaco comes with a sink, your GC must install and connect the sink’s water supply and drain"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 565,
+   "cells": [
+    {
+     "x": 74,
+     "text": "lines."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 554,
+   "cells": [
+    {
+     "x": 62,
+     "text": "4. Gas - If you are connecting your Monaco to a natural gas or propane hard-lined connection, your GC must install and"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 542,
+   "cells": [
+    {
+     "x": 74,
+     "text": "connect the gas line and your self-supplied regulator."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 530,
+   "cells": [
+    {
+     "x": 63,
+     "text": "5. Foundation – Your GC must obtain successful foundation/slab inspections then pour the concrete slab or footers for"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 519,
+   "cells": [
+    {
+     "x": 74,
+     "text": "your Monaco’s installation in conformance with the engineered drawings and all governmental requirements. A"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 507,
+   "cells": [
+    {
+     "x": 74,
+     "text": "minimum of 14 days is required for concrete to adequately cure prior to installation of your Monaco."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 496,
+   "cells": [
+    {
+     "x": 62,
+     "text": "6. Supervision - Your GC must be physically present during your Monaco’s full-day installation to determine and"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 484,
+   "cells": [
+    {
+     "x": 74,
+     "text": "supervise the means and methods for above-listed work."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 464,
+   "cells": [
+    {
+     "x": 60,
+     "text": "WELCOME TO MONACO!"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 443,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Please direct all questions along the way to your Regional Concierge Specialist, and they’ll have you grilling in"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 432,
+   "cells": [
+    {
+     "x": 60,
+     "text": "VERANO in no time!"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 395,
+   "cells": [
+    {
+     "x": 60,
+     "text": "VERANO CARES™ COURTESY HOME VISIT PROGRAM"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 371,
+   "cells": [
+    {
+     "x": 60,
+     "text": "At Verano Outdoor Living, your experience does not end at delivery. Our commitment to customer satisfaction extends well"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 359,
+   "cells": [
+    {
+     "x": 60,
+     "text": "beyond installation through our"
+    },
+    {
+     "x": 191,
+     "text": "Verano Cares™ Courtesy Home Visit Program"
+    },
+    {
+     "x": 392,
+     "text": "."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 338,
+   "cells": [
+    {
+     "x": 60,
+     "text": "As part of this program, Verano Outdoor Living offers a complimentary, no-questions-asked courtesy home visit within the first six"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 327,
+   "cells": [
+    {
+     "x": 60,
+     "text": "months of purchase to assist with:"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 306,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Warranty-related service items"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 295,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Troubleshooting operational questions"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 283,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Non-warranty adjustments or minor service needs"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 272,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Guidance on using integrated features such as lighting, audio, television, refrigeration, or accessories"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 260,
+   "cells": [
+    {
+     "x": 74,
+     "text": "Instruction on proper cleaning, burner adjustment, and general product care"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 239,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Our goal is simple — to ensure you feel confident, comfortable, and fully enjoying your outdoor living investment."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 219,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Verano Cares™ visits are intended to provide support, education, and minor adjustments where reasonably possible"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 207,
+   "cells": [
+    {
+     "x": 60,
+     "text": "during a standard service appointment. In the event that additional parts, materials, repairs, or non-covered services are"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 196,
+   "cells": [
+    {
+     "x": 60,
+     "text": "required, Verano Outdoor Living will provide a written estimate for customer approval prior to performing additional work."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 175,
+   "cells": [
+    {
+     "x": 60,
+     "text": "This program reflects our continued commitment to excellence, long-term relationships, and the Verano experience."
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 146,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Customer signature"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 144,
+   "cells": [
+    {
+     "x": 394,
+     "text": "Date"
+    },
+    {
+     "x": 482,
+     "text": "Sales rep"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 107,
+   "cells": [
+    {
+     "x": 490,
+     "text": "Sample Rep"
+    }
+   ]
+  },
+  {
+   "page": 10,
+   "y": 106,
+   "cells": [
+    {
+     "x": 402,
+     "text": "07/20/2026"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 762,
+   "cells": [
+    {
+     "x": 474,
+     "text": "Verano Direct,"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 753,
+   "cells": [
+    {
+     "x": 370,
+     "text": "640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 744,
+   "cells": [
+    {
+     "x": 420,
+     "text": "CUSTOMER SERVICE (800) 604-2023"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 736,
+   "cells": [
+    {
+     "x": 462,
+     "text": "Sample Rep"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 692,
+   "cells": [
+    {
+     "x": 60,
+     "text": "FINAL SALES AGREEMENT - SALES TOTAL"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 668,
+   "cells": [
+    {
+     "x": 60,
+     "text": "All sales are final. All payments are non-refundable. Customer agrees to all attached and incorporated terms"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 656,
+   "cells": [
+    {
+     "x": 60,
+     "text": "& conditions, delivery scheduling email policy, warranty terms, and line drawings."
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 635,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Order total"
+    },
+    {
+     "x": 361,
+     "text": "$37,189.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 622,
+   "cells": [
+    {
+     "x": 60,
+     "text": "PFL Trade-in credit"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 609,
+   "cells": [
+    {
+     "x": 60,
+     "text": "PFL Trade-in fee"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 595,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Storage fee"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 582,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Subtotal"
+    },
+    {
+     "x": 361,
+     "text": "$37,189.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 569,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Sales tax"
+    },
+    {
+     "x": 361,
+     "text": "$2,281.34"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 556,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Delivery/freight"
+    },
+    {
+     "x": 361,
+     "text": "$1,395.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 543,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Total purchase price"
+    },
+    {
+     "x": 361,
+     "text": "$40,865.34"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 530,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Down payment"
+    },
+    {
+     "x": 361,
+     "text": "$40,865.34"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 517,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Balance due"
+    },
+    {
+     "x": 361,
+     "text": "$0.00"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 505,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Address verification required prior to delivery"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 475,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Customer signature"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 473,
+   "cells": [
+    {
+     "x": 371,
+     "text": "Date"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 435,
+   "cells": [
+    {
+     "x": 378,
+     "text": "07/20/2026"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 390,
+   "cells": [
+    {
+     "x": 60,
+     "text": "Sales signature"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 388,
+   "cells": [
+    {
+     "x": 371,
+     "text": "Sales rep"
+    }
+   ]
+  },
+  {
+   "page": 12,
+   "y": 351,
+   "cells": [
+    {
+     "x": 378,
+     "text": "Sample Rep"
+    }
+   ]
+  }
+ ],
+ "text": "Verano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nFLORIDA DEPOSIT FSA\nFINAL SALE AGREEMENT\nORDER #14454\n07/20/26 03:39 PM (EDT)\nVerano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nFLORIDA DEPOSIT FSA\nGallery: Testville, FL\tGTL ID: D-0001\tREP ID: D-0002\nFLORIDA DEPOSIT FSA\nCUSTOMER(S):\tLAST: Testcustomer\tFIRST: Pat\nPHONE: 5555550100\tCELL:\tEMAIL: pat@example.com\nBILLING ADDRESS:\nAddress: 1 Test Street\nCITY: Testville\tSTATE: FL\tZIP: 00000\nDELIVERY ADDRESS:\nAddress: 2 Test Avenue\nCITY: Testburg\tSTATE: FL\tZIP: 00001\nITEM PURCHASED AND QUANTITY\nTemporary\nItem\tAs is\tCash & Carry\tQuantity\nStock List\nOWN CONFIGURATION\nGrill Island:\nGX10 ( double )\nCSL-32 Cocktail Station\nCSL-32 Cocktail Station\nStorage Door\nStorage Door\nOutlet\nDouble Drawer\nBar Fridge - Stainless Trim Kit\nMilano: Calce\nVolcanic Ash\nBar Island:\nMAUI 10\n1\n☐\t☐\nOutlet\nBar Fridge - Stainless Trim Kit\nBar Fridge - Stainless Trim Kit\nProfessional Stainless Steel Foot Rail\nMilano: Calce\nVolcanic Ash\nCombo:\nSt. Barth - Espresso\nHappy Hours:\nLED Lighting\n70 Inch TV Package\nTatta Bar Stool - Santorini White (8)\nStereo Marine Grade Speakers w/LED\nLighting\nVerano for Life\nPlatinum membership discount applied\nVerano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nFLORIDA DEPOSIT FSA\nREQUESTED DELIVERY TIMEFRAME\n3-6 WEEKS\nMinimum Lead Time\nFACTORY STORAGE\nUp to 6 months\nstate Customers must accept delivery on the date designated by Verano without exception. Delivery shall be made only\nlast two pages of the Mykonos Packet provided with your Final Sales Agreement.\nlast two pages of the Monaco Packet provided with your Final Sales Agreement.\nVerano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nFLORIDA DEPOSIT FSA\n3 to 5 business days after you either: (i) pay in full the Total Purchase Price; or (ii) pay 50% of the Total Purchase Price\nplus a non-refundable $250 fee for the engineered drawings.\nYOUR GENERAL CONTRACTOR’S RESPONSIBILITIES\nYour General Contractor (GC) shall be solely selected by you and your GC shall be solely and fully responsible for the\nfollowing:\n1. Permits – Your GC must determine, apply for and obtain all required governmental permits, including without\nlimitation, permits required for electrical, plumbing, gas, concrete/foundation, etc.\n2. Electrical – Your GC must install and connect all required electrical wiring. Your Monaco will have pre-drilled holes\nfor the puck lighting system and a hole for the ceiling fan will be cut out on-site.\n3. Plumbing - If your Monaco comes with a sink, your GC must install and connect the sink’s water supply and drain\nlines.\n4. Gas - If you are connecting your Monaco to a natural gas or propane hard-lined connection, your GC must install and\nconnect the gas line and your self-supplied regulator.\n5. Foundation – Your GC must obtain successful foundation/slab inspections then pour the concrete slab or footers for\nyour Monaco’s installation in conformance with the engineered drawings and all governmental requirements. A\nminimum of 14 days is required for concrete to adequately cure prior to installation of your Monaco.\n6. Supervision - Your GC must be physically present during your Monaco’s full-day installation to determine and\nsupervise the means and methods for above-listed work.\nWELCOME TO MONACO!\nPlease direct all questions along the way to your Regional Concierge Specialist, and they’ll have you grilling in\nVERANO in no time!\nVERANO CARES™ COURTESY HOME VISIT PROGRAM\nAt Verano Outdoor Living, your experience does not end at delivery. Our commitment to customer satisfaction extends well\nbeyond installation through our\tVerano Cares™ Courtesy Home Visit Program\t.\nAs part of this program, Verano Outdoor Living offers a complimentary, no-questions-asked courtesy home visit within the first six\nmonths of purchase to assist with:\nWarranty-related service items\nTroubleshooting operational questions\nNon-warranty adjustments or minor service needs\nGuidance on using integrated features such as lighting, audio, television, refrigeration, or accessories\nInstruction on proper cleaning, burner adjustment, and general product care\nOur goal is simple — to ensure you feel confident, comfortable, and fully enjoying your outdoor living investment.\nVerano Cares™ visits are intended to provide support, education, and minor adjustments where reasonably possible\nduring a standard service appointment. In the event that additional parts, materials, repairs, or non-covered services are\nrequired, Verano Outdoor Living will provide a written estimate for customer approval prior to performing additional work.\nThis program reflects our continued commitment to excellence, long-term relationships, and the Verano experience.\nCustomer signature\nDate\tSales rep\nSample Rep\n07/20/2026\nVerano Direct,\n640 Ocoee Business Parkway, Suite 80, Ocoee, FL 34761\nCUSTOMER SERVICE (800) 604-2023\nSample Rep\nFINAL SALES AGREEMENT - SALES TOTAL\nAll sales are final. All payments are non-refundable. Customer agrees to all attached and incorporated terms\n& conditions, delivery scheduling email policy, warranty terms, and line drawings.\nOrder total\t$37,189.00\nPFL Trade-in credit\t$0.00\nPFL Trade-in fee\t$0.00\nStorage fee\t$0.00\nSubtotal\t$37,189.00\nSales tax\t$2,281.34\nDelivery/freight\t$1,395.00\nTotal purchase price\t$40,865.34\nDown payment\t$40,865.34\nBalance due\t$0.00\nAddress verification required prior to delivery\nCustomer signature\nDate\n07/20/2026\nSales signature\nSales rep\nSample Rep"
+}

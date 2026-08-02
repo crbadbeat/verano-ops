@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b1120;
+  --surface: #131c31;
+  --surface-2: #1b2740;
+  --border: #263450;
+  --foreground: #eef2f9;
+  --muted: #93a1bd;
+  --ember: #ff7a29;
+  --ember-strong: #f2610f;
+  --teal: #2dd4bf;
+  --teal-strong: #14b8a6;
+  --danger: #f5556c;
+  --success: #34d399;
+  /* Show-good stock. Deliberately not ember or teal: a counter has to be able to
+     tell at a glance which mode they are recording in, from across a warehouse. */
+  --showgood: #a78bfa;
+  --showgood-strong: #7c3aed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-ember: var(--ember);
+  --color-ember-strong: var(--ember-strong);
+  --color-teal: var(--teal);
+  --color-teal-strong: var(--teal-strong);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-showgood: var(--showgood);
+  --color-showgood-strong: var(--showgood-strong);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(255, 122, 41, 0.10), transparent 60%),
+    radial-gradient(1000px 500px at -10% 110%, rgba(45, 212, 191, 0.08), transparent 60%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Reusable bits ----------------------------------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.925rem;
+  transition: transform 0.06s ease, filter 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--ember), var(--ember-strong));
+  color: #1a1206;
+}
+.btn-primary:hover { filter: brightness(1.06); }
+.btn-ghost {
+  background: var(--surface-2);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { background: var(--border); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.input {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.85rem;
+  color: var(--foreground);
+  outline: none;
+}
+.input:focus { border-color: var(--ember); box-shadow: 0 0 0 3px rgba(255, 122, 41, 0.15); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+/* Toast slide-in (see components/ui/Toast.tsx) */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast-in { animation: toast-in 0.18s ease-out; }
+
+/* TV dashboard flourishes (components/events/TvDashboard.tsx) */
+@keyframes tv-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(255, 122, 41, 0.16); }
+  50% { box-shadow: 0 0 60px rgba(255, 122, 41, 0.4); }
+}
+.tv-hero { animation: tv-glow 3.2s ease-in-out infinite; }
+@keyframes tv-banner {
+  from { opacity: 0; transform: translateY(-1.25rem) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tv-banner { animation: tv-banner 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+@keyframes tv-pop {
+  0% { opacity: 0; transform: scale(0.7); }
+  60% { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.tv-pop { animation: tv-pop 0.4s ease-out; }
+@keyframes tv-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.tv-live { animation: tv-live 1.6s ease-in-out infinite; }
+@keyframes tv-rise {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tv-rise { animation: tv-rise 0.5s ease-out; }

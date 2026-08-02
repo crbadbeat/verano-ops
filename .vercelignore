@@ -1,0 +1,16 @@
+# Never upload local env files to Vercel deployments — runtime env comes from
+# Vercel project settings. Shipping .env would leak secrets into the bundle and
+# override project settings at runtime.
+.env
+.env.*
+
+# Source lookup workbooks — imported through the UI, never read at runtime.
+*.xlsx
+
+# Customer documents. A signed Final Sales Agreement carries the customer's name,
+# email, phone and home address; agreements are uploaded through the UI and only
+# their extracted text is kept, so no PDF ever belongs in the deployment bundle.
+*.pdf
+
+# Query exports kept as reference for the decode rules — not runtime code.
+*.txt

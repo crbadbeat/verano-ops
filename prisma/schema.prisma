@@ -1,0 +1,1677 @@
+// Verano OPS — inventory tracking
+// On-hand is NEVER stored as a mutable counter. It is always derived from the
+// append-only InventoryLedger (SUM of qtyDelta per product). Every change is a
+// ledger row, so every number is explainable and every shipment is reversible.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled connection (Supabase pgbouncer)
+  directUrl = env("DIRECT_URL") // direct connection for migrations
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+  MANAGER // warehouse manager: may review + post physical counts
+  SALES // enters and maintains orders
+  ACCOUNTING // reviews NetSuite-synced orders before they go live
+  // reserved for later phases:
+  MFG_MANAGER
+  WATERJET
+  RETURNS
+  DRIVER
+  CSR // customer service: schedules customers onto trips
+  EXECUTIVE // read-only, all-site / all-department leadership dashboards
+  PGI_SALES // locked-down: may only log + edit their own PGI sales entries
+}
+
+enum LedgerReason {
+  SEED // initial load / spreadsheet upload
+  ADJUSTMENT // manual correction
+  SHIPMENT // decrement from an approved trip
+  REVERSAL // compensating entry that undoes a prior row
+  COUNT // physical-count reconciliation (counted - derived)
+  // reserved for later phases:
+  TRANSFER_OUT
+  TRANSFER_IN
+  MANUFACTURE
+  CONSUME
+  RETURN
+  MOD_OUT
+  MOD_IN
+  PICK // scanned pick: bin -> staging lane (conserved; ships at sign-off)
+}
+
+enum LocationType {
+  WAREHOUSE
+  BIN
+}
+
+enum CountStatus {
+  OPEN // counters entering observations
+  REVIEW // manager reviewing variances
+  POSTED // adjustments written to the ledger
+  CANCELLED
+}
+
+enum CountType {
+  FULL // the monthly wall-to-wall count
+  CYCLE // a recurring partial count of a subset
+}
+
+// Stock condition. Show goods went out to a home show, didn't sell and came
+// back — effectively open box, and worth the same. They sit in the SAME physical
+// bins as new stock, so this is a property of the stock, never of the location.
+// It is a third dimension of on-hand: (product, location, condition).
+// In NetSuite these are a separate warehouse ("8-Ocoee Warehouse FL PGS - Show
+// Good"), which is what the eventual export has to route on.
+enum StockCondition {
+  NEW // regular sellable stock
+  SHOW_GOOD // returned from a show, open box
+}
+
+enum CountMethod {
+  SCAN // scanned a QR (SKU or location)
+  MANUAL // typed / picked from a list
+  CONFIG // composed from the SKU configurator (bases/glass)
+  CRATE // crate of tops (qty = crateCount * crateSize)
+}
+
+enum JobStage {
+  WELDING
+  BOARDING
+  STUCCO
+  ELECTRICAL
+  WRAPPING
+}
+
+enum ManufacturingKind {
+  JOB
+  MOD
+}
+
+enum TransferStatus {
+  STAGED // built + staged, not yet departed
+  IN_TRANSIT // departed Ocoee, not yet received
+  RECEIVED // received at the destination warehouse
+  CANCELLED
+}
+
+enum ReturnStatus {
+  FLAGGED // flagged to come back to the warehouse
+  CHECKED_IN // received back into stock
+  CANCELLED
+}
+
+// How a configured product comes into existence, from the product owner's
+// lookup sheets. Imported, never inferred — unknown values are reported instead.
+enum BuildCategory {
+  SPECIAL // built per order, not stocked
+  PARENT // stocked in its own right
+  CHILD // built from a Parent (a base mod, or a glass top cut from a blank)
+}
+
+enum GlassModStatus {
+  QUEUED // waiting for the waterjet operator
+  IN_PROGRESS // operator has started cutting
+  COMPLETED // cut done: original glass out, new config in
+  CANCELLED
+}
+
+enum TripStatus {
+  PLANNING // CSR is building the trip
+  FINALIZED // dropped to the warehouse to pick + stage
+  CANCELLED
+  // reserved for later Scheduling sections:
+  STAGING
+  STAGED
+  QC_PASSED
+  LOADED
+  DELIVERED
+}
+
+// -----------------------------------------------------------------------------
+// Orders. The hub is the source of truth for what a customer bought — replacing
+// the wide Excel order file and the external queries that re-derived line items
+// from it. An order carries the CONFIGURATION; the base and glass SKUs are
+// composed from it (lib/order-derive.ts), never re-inferred per style.
+// -----------------------------------------------------------------------------
+
+// Where the order came in from. Recorded because the decode rules differ and
+// because a backfilled row must never duplicate one the POS already sent.
+enum OrderSource {
+  POS_PDF // parsed from a signed Final Sales Agreement
+  CONFIGURATOR_URL // decoded from a saved configurator link
+  MANUAL // built by hand in the hub
+  LEGACY_IMPORT // backfilled from the Excel order file
+  NETSUITE // pulled from a NetSuite sales order (the sync)
+}
+
+// The company division a synced order belongs to, from its NetSuite subsidiary.
+// PGI (subsidiary 3) sells direct; PGD (subsidiary 2) is the showroom network,
+// whose customer order is what we pull (never the 50%-COGS intercompany doc).
+enum Division {
+  PGI
+  PGD
+}
+
+// Sales hierarchy level (PGD showroom network + PGI show teams). Not an RBAC role
+// — it drives org position and reporting scope, layered on the SALES role. GTL is
+// the showroom manager; a REGIONAL owns a Region's showrooms; a VP oversees
+// regionals. Null for non-sales employees.
+enum SalesLevel {
+  REP
+  GTL
+  REGIONAL
+  VP
+}
+
+// How a sales employee separated — drives commission continuation. TERMINATED and
+// QUIT_WITH_NOTICE keep commissions flowing for 30 days past endDate; QUIT_NO_NOTICE
+// stops them at endDate. See commissionThroughDate() in lib/employees.
+enum SeparationType {
+  TERMINATED
+  QUIT_WITH_NOTICE
+  QUIT_NO_NOTICE
+}
+
+// Where a NetSuite-synced order sits in the accounting review flow. It lands in
+// the queue as PENDING_REVIEW; APPROVED lets it enter the normal order lifecycle;
+// NEEDS_NETSUITE_FIX flags a discrepancy for correction on the NetSuite side.
+enum NetsuiteReviewStatus {
+  PENDING_REVIEW
+  APPROVED
+  NEEDS_NETSUITE_FIX
+}
+
+enum OrderStatus {
+  DRAFT // being entered / reviewed
+  CONFIRMED // signed off, ready to be scheduled
+  CANCELLED
+  // reserved for the Scheduling section:
+  SCHEDULED
+  STAGED
+  SHIPPED
+  DELIVERED
+}
+
+enum OrderType {
+  CUSTOMER_DELIVERY
+  TRANSFER // stock moving to a showroom / the AZ warehouse
+  SHOW // going out to a home show
+  SERVICE // reserved: help on an already delivered order
+}
+
+enum IslandRole {
+  GRILL // the grill island ("Grilling System" in the old sheet)
+  BAR // the bar island ("Island Type")
+}
+
+// Where a line came from, so a re-decode can regenerate what it owns and leave
+// anything a human added alone.
+enum OrderLineOrigin {
+  CONFIG_BASE // the island's base unit
+  CONFIG_TOP // the island's glass top
+  CONFIG_ITEM // an appliance / accessory chosen on the island
+  COMBO_BOM // exploded from a pergola/shade kit
+  MANUAL // added by hand
+}
+
+enum OrderDocumentKind {
+  ORIGINAL
+  ADDENDUM
+}
+
+// Gas supply. Not a purchasable line — it selects which variant of every gas
+// appliance the order needs (a GSL-32 Pro is stocked as both LP and NG).
+enum GasType {
+  LP // liquid propane
+  NG // natural gas
+}
+
+// Check and wire transfer cost us nothing to take; a card or GreenSky financing
+// carries a fee. That distinction is what the Paid In Full 1% bonus turns on.
+enum PaymentMethod {
+  CHECK
+  WIRE_TRANSFER
+  CREDIT_CARD
+  GREENSKY
+}
+
+// A delivery address that differs from the billing address gets a manual fraud
+// check before the order is worked.
+enum FraudCheckStatus {
+  NOT_REQUIRED
+  REQUIRED
+  CLEARED
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         UserRole @default(STAFF)
+  createdAt    DateTime @default(now())
+
+  // ---- account management + site scope (cockpit foundation) ----
+  active            Boolean              @default(true) // deactivate without a DB edit
+  mustResetPassword Boolean              @default(false)
+  lastLoginAt       DateTime?
+  // Shared-device floor auth (Phase 3): a worker identifies with a PIN or a
+  // badge/QR scan on a station that stays signed in. Columns land now so the
+  // admin user screens can be built without a second migration.
+  pinHash           String?
+  badgeCode         String?              @unique
+  // Default site + optional multi-site scope (orthogonal to role). Null home =
+  // the default Ocoee warehouse; empty scope = all sites (enforced in code).
+  homeWarehouseId   String?
+  homeWarehouse     Location?            @relation("UserHomeWarehouse", fields: [homeWarehouseId], references: [id])
+  sites             UserSite[]
+  // Data-driven permissions (multi-role + per-user overrides). See lib/permissions.
+  roleAssignments     UserRoleAssignment[]
+  permissionOverrides UserPermissionOverride[]
+  passwordResets    PasswordResetToken[]
+  tripsDriven       DeliveryTrip[]       @relation("DeliveryTripDriver")
+  tripsQcPassed     DeliveryTrip[]       @relation("DeliveryTripQc")
+  tripsDelivered    DeliveryTrip[]       @relation("DeliveryTripDelivered")
+
+  ledgerEntries        InventoryLedger[]
+  countEntries         CountEntry[]
+  countSessionsCreated CountSession[]       @relation("CountSessionCreatedBy")
+  countSessionsPosted  CountSession[]       @relation("CountSessionPostedBy")
+  manufacturingCreated ManufacturingEntry[] @relation("MfgCreatedBy")
+  manufacturingVoided  ManufacturingEntry[] @relation("MfgVoidedBy")
+  transfersCreated     Transfer[]           @relation("TransferCreatedBy")
+  transfersReceived    Transfer[]           @relation("TransferReceivedBy")
+  returnsCreated       ReturnOrder[]        @relation("ReturnCreatedBy")
+  returnsCheckedIn     ReturnOrder[]        @relation("ReturnCheckedInBy")
+  glassModsRequested   GlassMod[]           @relation("GlassModRequestedBy")
+  glassModsCompleted   GlassMod[]           @relation("GlassModCompletedBy")
+  ordersCreated        Order[]              @relation("OrderCreatedBy")
+  orderDocuments       OrderDocument[]
+  orderEvents          OrderEvent[]
+  orderPayments        OrderPayment[]
+  deliveryTrips        DeliveryTrip[]       @relation("TripCreatedBy")
+  deliveryTripsStaged  DeliveryTrip[]       @relation("TripStagedBy")
+
+  // Optional employee record this login belongs to (a person can exist without a
+  // login, but every login should map to one person).
+  employee                   Employee?            @relation("EmployeeLogin")
+  employeeAssignmentsCreated EmployeeAssignment[] @relation("AssignmentCreatedBy")
+  showEventsCreated          ShowEvent[]          @relation("ShowEventCreatedBy")
+  salesEntries               SalesEntry[]         @relation("SalesEntryEnteredBy")
+}
+
+// A user's additional site scope beyond their home warehouse. No rows means the
+// user's scope is just their home site; an ADMIN / EXECUTIVE / global MANAGER
+// has empty scope meaning all sites (enforced in code, not by this table).
+model UserSite {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locationId String
+  location   Location @relation("UserSiteLocation", fields: [locationId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, locationId])
+  @@index([userId])
+  @@index([locationId])
+}
+
+// -----------------------------------------------------------------------------
+// Data-driven permissions. The permission CATALOG (what keys exist) lives in code
+// (lib/permissions/catalog.ts); these tables hold WHO gets them, admin-editable.
+// UserRole stays the stable role key. Precedence (deny-wins) + resolution:
+// lib/permissions/resolve.ts. Seeded to reproduce today's access exactly.
+// -----------------------------------------------------------------------------
+enum PermissionEffect {
+  ALLOW
+  DENY
+}
+
+// A role's ALLOW grant of a permission key (e.g. MANAGER → "qc:signoff").
+model RolePermission {
+  id            String   @id @default(cuid())
+  role          UserRole
+  permissionKey String
+  createdAt     DateTime @default(now())
+
+  @@unique([role, permissionKey])
+  @@index([permissionKey])
+}
+
+// A user's role assignment — multiple rows = multiple roles ("many hats"). The
+// set always includes User.role (the primary/display role). Mirrors UserSite.
+model UserRoleAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      UserRole
+  createdAt DateTime @default(now())
+
+  @@unique([userId, role])
+  @@index([userId])
+}
+
+// A per-user case-by-case exception layered on top of role grants. DENY wins over
+// role grants and ALLOW overrides (resolved in lib/permissions/resolve.ts).
+model UserPermissionOverride {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permissionKey String
+  effect        PermissionEffect
+  note          String? // audit: why this exception exists
+  createdAt     DateTime         @default(now())
+
+  @@unique([userId, permissionKey])
+  @@index([userId])
+}
+
+// One-time invite / password-reset token. The admin never types a user's
+// password: they issue a token (or a shown-once temp password) and the user
+// sets their own on first login. tokenHash stores a hash, never the raw token.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// The product master. `sku` is the NetSuite item NAME (the real SKU).
+model Product {
+  id          String   @id @default(cuid())
+  sku         String   @unique // working key: smart-SKU for Bases/Glass; the NetSuite number for purchased items
+  // WMS-owned display-name override — the ONE name we surface. The NetSuite item
+  // sync writes NetSuite's (often poor) name into `name` as a fallback and must
+  // NEVER touch this. Resolver everywhere: displayName ?? name ?? sku.
+  displayName String?
+  name        String // NetSuite's item name — a fallback below displayName; the sync keeps it current
+  description String? // the NetSuite item name/description — mutable, display only
+  category    String? // Glass / Base / Appliances-Extras (best-effort)
+  uom         String   @default("EA")
+  active      Boolean  @default(true)
+  // Whether the warehouse ever picks this. An outlet is a real product we buy
+  // and stock, but it is built into the base, so it belongs ON the order and
+  // NOT on the pick list. Kept as a product attribute rather than a rule in the
+  // importer, because the list of these grows as orders are worked through.
+  pickable    Boolean  @default(true)
+  attributes  Json? // decoded smart-SKU config (Base/Glass); null for plain items
+  crateSize   Int? // glass tops per crate, for crate counting
+  // Manufacturer barcode for scan-picking. Bases/Glass scan a QR of the SKU
+  // itself, so this is for the other items. One per product; nulls are fine.
+  barcode     String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // ---- classification, imported from the Base/Glass lookup sheets ----
+  // The SKU this one is built or cut from. Deliberately a plain string, not a
+  // relation: the sheets reference parents that are not products here (mostly
+  // glass blanks), and we do not invent products to satisfy a link. A SKU that
+  // is its own parent is stocked in its own right — that is how the sheets say it.
+  parentSku         String?
+  buildCategory     BuildCategory?
+  maxStockLevel     Int? // "Max Capacity" on the base sheet; a replenishment ceiling
+  // NetSuite standard cost in cents (synced from NetSuite), so inventory VALUE
+  // in dollars becomes derivable for the leadership dashboards.
+  standardCostCents Int?
+
+  // ---- NetSuite linkage ----
+  // Order intake auto-creates a Product whenever a decoded configuration has no
+  // match (a "Special" base, or a top that still has to be cut). Those start
+  // unlinked and show up in the NetSuite match queue until someone ties them to
+  // the real item. Everything seeded from NetSuite is linked at migration time.
+  // The STABLE anchor for a purchased item: NetSuite's constant internal NUMBER.
+  // The NAME can be renamed in NetSuite without breaking the link. Nullable —
+  // app-created configured Bases/Tops stay smart-SKU-keyed until matched.
+  netsuiteNumber   String?   @unique
+  netsuiteItemId   String? // legacy, superseded by netsuiteNumber
+  netsuiteLinkedAt DateTime?
+
+  aliases            PickAlias[]
+  locationCosts      ProductLocationCost[]
+  ledgerEntries      InventoryLedger[]
+  countEntries       CountEntry[]
+  manufacturingBuilt ManufacturingEntry[]  @relation("MfgProduct")
+  manufacturingNew   ManufacturingEntry[]  @relation("MfgNewProduct")
+  bomParentOf        BomComponent[]        @relation("BomParent")
+  bomComponentOf     BomComponent[]        @relation("BomComponent")
+  transferLines      TransferLine[]
+  returnLines        ReturnOrderLine[]
+  glassModsSource    GlassMod[]            @relation("GlassModSource")
+  glassModsTarget    GlassMod[]            @relation("GlassModTarget")
+  orderLines         OrderLine[]
+  orderIslandBases   OrderIsland[]         @relation("OrderIslandBase")
+  orderIslandTops    OrderIsland[]         @relation("OrderIslandTop")
+
+  @@index([sku])
+  @@index([parentSku])
+  @@index([netsuiteLinkedAt])
+}
+
+// Maps a scan-alias label -> a Product. Grows as unmatched order/transfer/return
+// lines are mapped by hand — the hub-native learning loop. matchKey is a
+// normalized lookup key (see lib/alias.ts).
+model PickAlias {
+  id           String   @id @default(cuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sourceItem   String // the scanned / typed item label
+  sourceDetail String? // optional finer-grained detail
+  category     String?
+  matchKey     String   @unique // normalized lookup key
+  createdAt    DateTime @default(now())
+
+  @@index([productId])
+}
+
+// Append-only. on_hand(product) = SUM(qtyDelta) over all rows.
+model InventoryLedger {
+  id                   String              @id @default(cuid())
+  productId            String
+  product              Product             @relation(fields: [productId], references: [id])
+  locationId           String? // null = the default (Ocoee) warehouse; set explicitly by counts/transfers
+  location             Location?           @relation(fields: [locationId], references: [id])
+  qtyDelta             Int // +seed / +adjustment / -shipment / +reversal / +count
+  // Show goods share bins with new stock, so on-hand is keyed by
+  // (product, location, condition). Every pre-existing row is NEW.
+  condition            StockCondition      @default(NEW)
+  reason               LedgerReason
+  note                 String?
+  countSessionId       String?
+  countSession         CountSession?       @relation(fields: [countSessionId], references: [id])
+  manufacturingEntryId String?
+  manufacturingEntry   ManufacturingEntry? @relation(fields: [manufacturingEntryId], references: [id])
+  transferId           String?
+  transfer             Transfer?           @relation(fields: [transferId], references: [id])
+  returnOrderId        String?
+  returnOrder          ReturnOrder?        @relation(fields: [returnOrderId], references: [id])
+  glassModId           String?
+  glassMod             GlassMod?           @relation(fields: [glassModId], references: [id])
+  tripId               String?
+  trip                 DeliveryTrip?       @relation(fields: [tripId], references: [id])
+  createdById          String?
+  createdBy            User?               @relation(fields: [createdById], references: [id])
+  createdAt            DateTime            @default(now())
+
+  @@index([productId])
+  @@index([productId, locationId])
+  @@index([productId, locationId, condition])
+  @@index([countSessionId])
+  @@index([manufacturingEntryId])
+  @@index([transferId])
+  @@index([returnOrderId])
+  @@index([glassModId])
+  @@index([tripId])
+  // For leadership dashboards: windowed velocity / throughput / movement-mix
+  // rollups that group by reason over a time window (derive-don't-store).
+  @@index([reason, createdAt])
+  @@index([createdAt])
+}
+
+// -----------------------------------------------------------------------------
+// WMS foundation: locations + monthly physical counts.
+// -----------------------------------------------------------------------------
+
+// Warehouse / bin registry. `code` is what a location QR encodes. A BIN points to
+// its WAREHOUSE via parentId; a warehouse total = SUM over its bins + warehouse-level rows.
+model Location {
+  id        String       @id @default(cuid())
+  code      String       @unique
+  name      String
+  type      LocationType @default(BIN)
+  parentId  String?
+  parent    Location?    @relation("LocationHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Location[]   @relation("LocationHierarchy")
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Bins only. `code` stays the identity that is displayed, printed and scanned
+  // ("10-A-2"); these are the same code broken out so we can filter and report —
+  // counting a whole aisle, for instance. Derived by parseLocationCode(), never
+  // typed by hand. A code with no level segment is level 1 (a ground position).
+  aisle String? // "10", "N1", "Crate City"
+  bay   String? // "A".."J", or a named position: "FLOOR", "END CAP", "CONTAINER"
+  level Int? // 1..5
+
+  // Exactly one warehouse holds its warehouse-level stock at locationId = null
+  // (the legacy Ocoee convention). Marking it explicitly rather than matching on
+  // a code string: a rename would silently send counts to a different slot.
+  isDefaultWarehouse Boolean @default(false)
+  // A staging lane (Receiving / Returns / 1..15) rather than a storage bin.
+  isStagingLane      Boolean @default(false)
+
+  // The NetSuite location (warehouse/showroom) internal id this WMS warehouse
+  // mirrors. Set on WAREHOUSE rows so the nightly sync can attach NetSuite's
+  // per-location average cost; null = not linked (skipped by the cost sync).
+  netsuiteId Int? @unique
+
+  // PGD region this showroom belongs to (null for warehouses / unassigned).
+  regionId String?
+  region   Region? @relation("LocationRegion", fields: [regionId], references: [id])
+
+  // The NetSuite sales-center segment id for this showroom (cseg_sales_center),
+  // mapped once by name. Synced orders carry the segment id; this ties them to the
+  // showroom → Region → Division for sales dashboards.
+  netsuiteSalesCenterId Int? @unique
+
+  // When false (default), the global landed-cost overhead % (Setting.overheadBps)
+  // is added to this warehouse's average cost for valuation. Supplier locations
+  // that hold pre-overhead landed cost (e.g. Shanghai) are marked exempt = true.
+  overheadExempt Boolean @default(false)
+
+  ledgerEntries       InventoryLedger[]
+  countEntries        CountEntry[]
+  countSessions       CountSession[]
+  transfersIn         Transfer[]            @relation("TransferDest")
+  tripLanes           DeliveryTripLane[]
+  homeUsers           User[]                @relation("UserHomeWarehouse")
+  userSites           UserSite[]            @relation("UserSiteLocation")
+  locationCosts       ProductLocationCost[]
+  homeEmployees       Employee[]            @relation("EmployeeHomeLocation")
+  assignmentEmployees EmployeeAssignment[]  @relation("AssignmentHomeLocation")
+
+  @@index([parentId])
+  @@index([type])
+  @@index([aisle])
+}
+
+// NetSuite average cost per (product, warehouse), refreshed by the nightly sync
+// from the `inventoryitemlocations` table. Only warehouses with a netsuiteId get
+// rows; the WMS multiplies its own on-hand by this to value stock per warehouse.
+// The account-wide average lives on Product.standardCostCents; this is the
+// location-specific figure.
+model ProductLocationCost {
+  id               String   @id @default(cuid())
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  locationId       String
+  location         Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  averageCostCents Int
+  syncedAt         DateTime @default(now())
+
+  @@unique([productId, locationId])
+  @@index([locationId])
+}
+
+// Singleton app settings (id is always "current"). overheadBps = the landed-cost
+// overhead added to average cost for valuation, in basis points (1180 = 11.80%),
+// applied to every warehouse except those flagged Location.overheadExempt.
+model Setting {
+  id            String   @id @default("current")
+  overheadBps   Int      @default(1180)
+  // Minimum deposit (% of an order's grand total, in basis points; 5000 = 50%)
+  // a NetSuite-synced order must have received before it is released to the
+  // scheduling team. Hard gate — below this, scheduling never sees the order.
+  minDepositBps Int      @default(5000)
+  updatedAt     DateTime @updatedAt
+}
+
+// One monthly physical-inventory event for a warehouse. Blind count -> manager
+// review -> post writes COUNT ledger rows (qtyDelta = counted - derived, per location).
+model CountSession {
+  id          String      @id @default(cuid())
+  label       String
+  warehouseId String
+  warehouse   Location    @relation(fields: [warehouseId], references: [id])
+  status      CountStatus @default(OPEN)
+  type        CountType   @default(FULL)
+  createdById String?
+  createdBy   User?       @relation("CountSessionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime    @default(now())
+  postedById  String?
+  postedBy    User?       @relation("CountSessionPostedBy", fields: [postedById], references: [id], onDelete: SetNull)
+  postedAt    DateTime?
+
+  entries       CountEntry[]
+  ledgerEntries InventoryLedger[]
+
+  @@index([warehouseId])
+  @@index([status])
+}
+
+// A single blind-count observation. Many entries for the same (product, location)
+// aggregate at review time (the hub compiles locations from the scans themselves).
+model CountEntry {
+  id          String         @id @default(cuid())
+  sessionId   String
+  session     CountSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  locationId  String?
+  location    Location?      @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  productId   String? // resolved SKU; null = needs mapping (reuse the unmatched UX)
+  product     Product?       @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rawSku      String? // what was scanned/composed before resolution
+  qty         Int
+  // Which stock the counter was looking at. Show goods share bins with new
+  // stock, so a single bin can produce entries of both conditions.
+  condition   StockCondition @default(NEW)
+  crateCount  Int? // number of crates, when method = CRATE
+  method      CountMethod    @default(MANUAL)
+  countedById String?
+  countedBy   User?          @relation(fields: [countedById], references: [id], onDelete: SetNull)
+  countedAt   DateTime       @default(now())
+  note        String?
+
+  @@index([sessionId])
+  @@index([locationId])
+  @@index([productId])
+}
+
+// -----------------------------------------------------------------------------
+// Phase 2 — Manufacturing: build bases through stages, pay per-worker bonuses,
+// handle mods, and (at Wrapping) add the finished base + consume BOM raw goods.
+// -----------------------------------------------------------------------------
+
+// Shop-floor workers (not app logins). Selected when recording a job.
+// A first-class person: warehouse worker, CSR, or sales rep alike. This absorbs
+// the old payroll-only Employee (it still carries `pays`), plus identity, the org
+// chart, division membership + NetSuite ids, and an optional linked login. The
+// mutable org fields (salesLevel/home/manager/region) are the CURRENT cache; every
+// backdatable "Active Date" change is an EmployeeAssignment row (dated history).
+model Employee {
+  id             String          @id @default(cuid())
+  code           String?         @unique // internal / badge code
+  adpId          String?         @unique // ADP employee id — the import + daily-sync key
+  name           String // full LEGAL display name (from ADP; the payroll/ADP match key)
+  firstName      String?
+  lastName       String?
+  // Optional display-name override (e.g. "John Smith Jr.") to tell apart people
+  // who share an identical legal name. When set it is shown everywhere in the UI
+  // instead of `name`. The ADP sync never writes this, so it survives re-imports.
+  preferredName  String?
+  title          String? // free-text job title (from ADP)
+  email          String?         @unique // real or synthetic; null when a rep has none
+  phone          String?
+  cell           String?
+  active         Boolean         @default(true)
+  hireDate       DateTime?       @db.Date
+  endDate        DateTime?       @db.Date // separation date
+  separationType SeparationType?
+
+  // Profile photo — a cropped square, stored inline (small; avatars are ~20KB) and
+  // served by /api/employees/[id]/avatar. avatarUpdatedAt busts the image cache.
+  avatar         Bytes?
+  avatarMime     String?
+  avatarUpdatedAt DateTime?
+  // Raw ADP supervisor name — kept for later manual org linking (auto-linking by
+  // name is unsafe: common names collide). Set the real managerId by hand.
+  supervisorName String?
+
+  // Compensation — SENSITIVE, admin-only. Populated by the ADP import ONLY for an
+  // allow-list of roles (see lib/adp); everyone else stays null by policy.
+  annualSalaryCents Int?
+  payRateCents      Int? // "regular pay rate" (hourly for hourly staff), in cents
+  payClass          String?
+  payStructure      String?
+
+  // Manual identity linking. The ADP export can list the same person as two rows
+  // (one per payroll company) with different file numbers; we do NOT auto-merge
+  // (names collide). Instead a person's secondary record points at the primary,
+  // set by hand — so two "Michael Brown" rows never merge by accident.
+  primaryId String?
+  primary   Employee?  @relation("EmployeePrimary", fields: [primaryId], references: [id])
+  aliases   Employee[] @relation("EmployeePrimary")
+
+  // Optional login. A person without a login simply has none; a manager can issue
+  // a temp password / reset via the existing PasswordResetToken flow.
+  userId String? @unique
+  user   User?   @relation("EmployeeLogin", fields: [userId], references: [id])
+
+  // Sales org — current cached values; dated history in EmployeeAssignment.
+  salesLevel     SalesLevel?
+  homeLocationId String? // showroom (PGD) or warehouse (PGI); a WAREHOUSE-type Location
+  homeLocation   Location?   @relation("EmployeeHomeLocation", fields: [homeLocationId], references: [id])
+  managerId      String? // the org chart (spans both divisions)
+  manager        Employee?   @relation("EmployeeOrg", fields: [managerId], references: [id])
+  reports        Employee[]  @relation("EmployeeOrg")
+  regionId       String? // PGD region (usually derived from the home showroom)
+  region         Region?     @relation("EmployeeRegion", fields: [regionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pays                    ManufacturingPay[]
+  divisions               EmployeeDivision[]
+  assignments             EmployeeAssignment[] @relation("AssignmentEmployee")
+  assignmentsAsManager    EmployeeAssignment[] @relation("AssignmentManager")
+  regionsLed              Region[]             @relation("RegionRegional") // regions this person is the Regional of
+  showsLed                ShowEvent[]          @relation("ShowEventLeader") // PGI shows this person leads
+  showStaff               ShowEventStaff[]
+  showShifts              ShowEventShift[]
+  salesEntriesAsRep       SalesEntry[]         @relation("SalesEntryRep")
+  salesEntriesAsSecondRep SalesEntry[]         @relation("SalesEntrySecondRep")
+  salesEntriesAsLeader    SalesEntry[]         @relation("SalesEntryShowLeader")
+
+  @@index([active])
+  @@index([managerId])
+  @@index([regionId])
+  @@index([salesLevel])
+  @@index([primaryId])
+}
+
+// One (employee, division) membership. A person can be in BOTH PGI and PGD, each
+// with its own NetSuite employee id — the id the synced order commission fields
+// (salesRep1Id/gtlId/vpId/regionalId) join against to attribute sales.
+model EmployeeDivision {
+  id            String    @id @default(cuid())
+  employeeId    String
+  employee      Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  division      Division
+  // The company employee id for this division — from the ADP payroll code + file
+  // number (41N -> I<file>, OSC -> D<file>, leading zeros stripped). e.g. D1303.
+  divisionCode  String?   @unique
+  netsuiteId    String? // per-subsidiary NetSuite internal id (the future order join)
+  effectiveDate DateTime? @db.Date
+  endDate       DateTime? @db.Date
+  createdAt     DateTime  @default(now())
+
+  @@unique([employeeId, division])
+  @@index([employeeId])
+  @@index([netsuiteId])
+}
+
+// A dated snapshot of an employee's org/attribution fields — the audit trail
+// behind every backdatable "Active Date" change. The effective row for a date D is
+// the latest one with effectiveDate <= D; the Employee row caches the newest <= today.
+model EmployeeAssignment {
+  id             String      @id @default(cuid())
+  employeeId     String
+  employee       Employee    @relation("AssignmentEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+  effectiveDate  DateTime    @db.Date
+  salesLevel     SalesLevel?
+  homeLocationId String?
+  homeLocation   Location?   @relation("AssignmentHomeLocation", fields: [homeLocationId], references: [id])
+  managerId      String?
+  manager        Employee?   @relation("AssignmentManager", fields: [managerId], references: [id])
+  regionId       String?
+  region         Region?     @relation("AssignmentRegion", fields: [regionId], references: [id])
+  note           String?
+  createdAt      DateTime    @default(now())
+  createdById    String?
+  createdBy      User?       @relation("AssignmentCreatedBy", fields: [createdById], references: [id])
+
+  @@index([employeeId, effectiveDate])
+}
+
+// PGD-only. A Region is a Regional's territory: the set of showrooms one Regional
+// oversees. A VP oversees several regions/regionals (derived via the org chart).
+// PGI has no regions — that division groups by Show Leader instead.
+model Region {
+  id         String    @id @default(cuid())
+  name       String    @unique
+  active     Boolean   @default(true)
+  regionalId String?
+  regional   Employee? @relation("RegionRegional", fields: [regionalId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  locations   Location[]           @relation("LocationRegion") // showrooms in this region
+  members     Employee[]           @relation("EmployeeRegion") // reps/GTLs whose region this is
+  assignments EmployeeAssignment[] @relation("AssignmentRegion")
+
+  @@index([regionalId])
+}
+
+// Base styles drive the bonus matrix (style × stage). Managed list; selected by
+// hand until the smart-SKU grammar lands, then auto-derived from the SKU.
+model BaseStyle {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  bonusRates BonusRate[]
+  entries    ManufacturingEntry[]
+}
+
+// The per-(style, stage) bonus a worker earns, in cents. One row per pair.
+model BonusRate {
+  id          String    @id @default(cuid())
+  baseStyleId String
+  baseStyle   BaseStyle @relation(fields: [baseStyleId], references: [id], onDelete: Cascade)
+  stage       JobStage
+  amountCents Int       @default(0)
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([baseStyleId, stage])
+  @@index([baseStyleId])
+}
+
+// Dropdown of reasons a mod was performed.
+model ModReason {
+  id        String   @id @default(cuid())
+  label     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  entries ManufacturingEntry[]
+}
+
+// Bill of materials: one raw-goods component consumed by a finished product.
+// A product's BOM = all rows where productId = that product.
+model BomComponent {
+  id          String  @id @default(cuid())
+  productId   String
+  product     Product @relation("BomParent", fields: [productId], references: [id], onDelete: Cascade)
+  componentId String
+  component   Product @relation("BomComponent", fields: [componentId], references: [id])
+  qty         Int
+
+  @@unique([productId, componentId])
+  @@index([productId])
+}
+
+// One recorded, QC-passed job (or mod). Bonus is computed from the (style,stage)
+// rate and split across workers via ManufacturingPay. Wrapping additionally moves
+// inventory (finished base in; BOM raw goods out). Corrections are voids, not edits.
+model ManufacturingEntry {
+  id             String            @id @default(cuid())
+  kind           ManufacturingKind @default(JOB)
+  productId      String? // the base built (JOB); a MOD may be style-only
+  product        Product?          @relation("MfgProduct", fields: [productId], references: [id])
+  newProductId   String? // MOD: the resulting config that gets added
+  newProduct     Product?          @relation("MfgNewProduct", fields: [newProductId], references: [id])
+  baseStyleId    String?
+  baseStyle      BaseStyle?        @relation(fields: [baseStyleId], references: [id])
+  stage          JobStage
+  modReasonId    String?
+  modReason      ModReason?        @relation(fields: [modReasonId], references: [id])
+  split          Boolean           @default(false)
+  bonusRateCents Int               @default(0) // snapshot of the (style,stage) rate applied
+  note           String?
+  voided         Boolean           @default(false)
+  createdById    String?
+  createdBy      User?             @relation("MfgCreatedBy", fields: [createdById], references: [id])
+  createdAt      DateTime          @default(now())
+  voidedById     String?
+  voidedBy       User?             @relation("MfgVoidedBy", fields: [voidedById], references: [id])
+  voidedAt       DateTime?
+
+  pays          ManufacturingPay[]
+  ledgerEntries InventoryLedger[]
+
+  @@index([createdAt])
+  @@index([stage])
+  @@index([kind])
+}
+
+// The bonus one worker earned on one entry (in cents). Sum per employee = payroll.
+model ManufacturingPay {
+  id          String             @id @default(cuid())
+  entryId     String
+  entry       ManufacturingEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee           @relation(fields: [employeeId], references: [id])
+  amountCents Int
+
+  @@index([entryId])
+  @@index([employeeId])
+}
+
+// -----------------------------------------------------------------------------
+// Phase 3 — Transfers (Ocoee -> AZ / showroom) and Returns to the warehouse.
+// -----------------------------------------------------------------------------
+
+// Depart moves Ocoee -> IN-TRANSIT; receive moves IN-TRANSIT -> destination, so
+// inventory is always conserved and in-transit stock stays visible in the ledger.
+model Transfer {
+  id              String         @id @default(cuid())
+  reference       String? // trip/load name, or a free label
+  destWarehouseId String
+  destWarehouse   Location       @relation("TransferDest", fields: [destWarehouseId], references: [id])
+  status          TransferStatus @default(STAGED)
+  driverName      String?
+  signatureData   String? // data URL of the driver's drawn signature
+  signedAt        DateTime?
+  departedAt      DateTime?
+  receivedAt      DateTime?
+  rawJson         Json? // legacy raw import payload; unused since pick-sheet import retired
+  createdById     String?
+  createdBy       User?          @relation("TransferCreatedBy", fields: [createdById], references: [id])
+  receivedById    String?
+  receivedBy      User?          @relation("TransferReceivedBy", fields: [receivedById], references: [id])
+  createdAt       DateTime       @default(now())
+
+  lines         TransferLine[]
+  ledgerEntries InventoryLedger[]
+
+  @@index([status])
+  @@index([destWarehouseId])
+}
+
+model TransferLine {
+  id         String   @id @default(cuid())
+  transferId String
+  transfer   Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  productId  String? // null = unmatched line
+  product    Product? @relation(fields: [productId], references: [id])
+  orderNo    String?
+  itemLabel  String? // raw line text when unmatched
+  qty        Int
+
+  @@index([transferId])
+  @@index([productId])
+}
+
+// An order/units flagged to come back to the warehouse (delivery no-show, or
+// unsold tradeshow floor models). Check-in adds the received qty back to stock.
+model ReturnOrder {
+  id            String       @id @default(cuid())
+  reference     String? // order # / trip label
+  reason        String?
+  status        ReturnStatus @default(FLAGGED)
+  rawJson       Json?
+  createdById   String?
+  createdBy     User?        @relation("ReturnCreatedBy", fields: [createdById], references: [id])
+  checkedInById String?
+  checkedInBy   User?        @relation("ReturnCheckedInBy", fields: [checkedInById], references: [id])
+  checkedInAt   DateTime?
+  createdAt     DateTime     @default(now())
+
+  lines         ReturnOrderLine[]
+  ledgerEntries InventoryLedger[]
+
+  @@index([status])
+}
+
+model ReturnOrderLine {
+  id            String      @id @default(cuid())
+  returnOrderId String
+  returnOrder   ReturnOrder @relation(fields: [returnOrderId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product?    @relation(fields: [productId], references: [id])
+  orderNo       String?
+  itemLabel     String?
+  expectedQty   Int // flagged as coming back
+  checkedInQty  Int         @default(0) // actually received back
+
+  @@index([returnOrderId])
+  @@index([productId])
+}
+
+// -----------------------------------------------------------------------------
+// Phase 4 — Glass mods: cut an existing top into a different configuration.
+// -----------------------------------------------------------------------------
+
+// A waterjet job. Staff flag an order + the glass to cut; the operator works the
+// queue by due date (default: 2 business days before the order's load date).
+// Completing it deducts the original glass and adds the new configuration.
+// The source needn't be a blank — it's any existing top SKU.
+model GlassMod {
+  id              String         @id @default(cuid())
+  orderNo         String?
+  customer        String?
+  loadDate        DateTime?      @db.Date // the order's scheduled load date
+  dueDate         DateTime?      @db.Date // default: 2 business days before loadDate
+  sourceProductId String
+  sourceProduct   Product        @relation("GlassModSource", fields: [sourceProductId], references: [id])
+  targetProductId String
+  targetProduct   Product        @relation("GlassModTarget", fields: [targetProductId], references: [id])
+  qty             Int            @default(1)
+  status          GlassModStatus @default(QUEUED)
+  note            String?
+  requestedById   String?
+  requestedBy     User?          @relation("GlassModRequestedBy", fields: [requestedById], references: [id])
+  startedAt       DateTime?
+  completedById   String?
+  completedBy     User?          @relation("GlassModCompletedBy", fields: [completedById], references: [id])
+  completedAt     DateTime?
+  createdAt       DateTime       @default(now())
+
+  ledgerEntries InventoryLedger[]
+
+  @@index([status])
+  @@index([dueDate])
+}
+
+// -----------------------------------------------------------------------------
+// Scheduling. CSRs build trips and schedule confirmed orders onto them by load
+// date; a finalized trip drops to the warehouse to be picked and staged. A whole
+// order goes on ONE trip (Order.deliveryTripId) and the trip owns the load date.
+// Named DeliveryTrip to stay distinct from the retired trip-snapshot model.
+// -----------------------------------------------------------------------------
+
+model DeliveryTrip {
+  id            String     @id @default(cuid())
+  name          String? // optional label, e.g. "South FL — Fri"
+  type          OrderType  @default(CUSTOMER_DELIVERY) // delivery / transfer / show (SERVICE unused for trips)
+  status        TripStatus @default(PLANNING)
+  loadDate      DateTime   @db.Date // the day the truck loads; staging is the business day before
+  area          String? // free-text grouping hint (region/zone), CSR-set
+  note          String?
+  createdById   String?
+  createdBy     User?      @relation("TripCreatedBy", fields: [createdById], references: [id])
+  finalizedAt   DateTime?
+  stagedAt      DateTime? // when the warehouse finished staging it (STAGED)
+  stagedById    String?
+  stagedBy      User?      @relation("TripStagedBy", fields: [stagedById], references: [id])
+  // ---- QC + driver sign-off + delivery (ops-flow Sections 3/4) ----
+  // Shapes proven on Transfer; nullable and additive. The QC and
+  // driver screens (Wave 2) write these; delivery sign-off is what finally
+  // depletes stock out of the lane (LedgerReason.SHIPMENT).
+  qcById        String?
+  qcBy          User?      @relation("DeliveryTripQc", fields: [qcById], references: [id])
+  qcAt          DateTime?
+  qcNote        String?
+  driverId      String?
+  driver        User?      @relation("DeliveryTripDriver", fields: [driverId], references: [id])
+  driverName    String? // free-text fallback when the driver is not an app user
+  signatureData String? // data URL of the driver's drawn signature
+  signedAt      DateTime?
+  departedAt    DateTime?
+  deliveredById String?
+  deliveredBy   User?      @relation("DeliveryTripDelivered", fields: [deliveredById], references: [id])
+  deliveredAt   DateTime? // makes on-time-delivery % derivable
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  orders        Order[]            @relation("OrderDeliveryTrip")
+  lanes         DeliveryTripLane[]
+  ledgerEntries InventoryLedger[]
+
+  @@index([loadDate])
+  @@index([status])
+}
+
+// The lanes a trip is staged into. A trip physically uses up to 3, but all
+// inventory stages to the primary (position 0) lane; extras are direction only.
+model DeliveryTripLane {
+  id        String       @id @default(cuid())
+  tripId    String
+  trip      DeliveryTrip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  laneId    String
+  lane      Location     @relation(fields: [laneId], references: [id])
+  position  Int          @default(0) // 0 = primary; everything stages here
+  createdAt DateTime     @default(now())
+
+  @@unique([tripId, laneId])
+  @@index([tripId])
+}
+
+// -----------------------------------------------------------------------------
+// Orders — the hub's own order book.
+// -----------------------------------------------------------------------------
+
+// One customer order. `orderNo` is prefixed by source ("P14454" = POS order
+// 14454) so a legacy backfill can never collide with a POS order; `posOrderNo`
+// keeps the bare number so the importer can spot one it already has.
+// Money is Int cents throughout, matching BonusRate.
+model Order {
+  id              String      @id @default(cuid())
+  orderNo         String      @unique
+  posOrderNo      String? // the bare POS number behind a "P" order
+  netsuiteOrderNo String? // the sheet's "QB Order #" — accounting invoices on this
+  source          OrderSource
+  status          OrderStatus @default(DRAFT)
+  type            OrderType   @default(CUSTOMER_DELIVERY)
+
+  // --- NetSuite order sync (source = NETSUITE) ---------------------------------
+  // The NetSuite transaction internal id: the stable, unique idempotency anchor
+  // for the pull (tranid, e.g. "SO48924", becomes orderNo). netsuiteEntityId is
+  // the customer's NetSuite internal id, kept for future customer dedup.
+  division               Division?
+  // A closed/billed order pulled purely for sales analytics (the historical
+  // backfill). Kept OUT of every operational view (order list, review queue,
+  // scheduling); dashboards count it. Live orders stay false.
+  isHistorical           Boolean               @default(false)
+  netsuiteTransactionId  String?               @unique
+  netsuiteEntityId       String?
+  netsuiteLastModifiedAt DateTime? // the SO's lastmodifieddate — drift detection
+  netsuiteSyncedAt       DateTime? // when the sync last wrote this order
+  netsuiteReviewStatus   NetsuiteReviewStatus?
+  // COGS valued at the MAIN warehouse average cost: an estimate while the order is
+  // open (cost can still move), snapshotted to the true figure at ship (dispatch).
+  estCogsCents           Int?
+  trueCogsCents          Int?
+  // Money received toward this order, assembled from NetSuite (applied payments +
+  // attributed customer deposits). Null = not yet synced OR un-attributable (the
+  // customer has multiple open orders — see below); drives the deposit gate.
+  depositReceivedCents   Int?
+  depositSyncedAt        DateTime?
+  // When a deposit can't be tied to one order (customer has >1 open order), we
+  // don't gate on it: record the customer's open-order count and their total
+  // unapplied deposit balance, shown as "Unverified" for a human to resolve.
+  customerOpenOrderCount Int?
+  depositUnverifiedCents Int?
+
+  customerFirst String?
+  customerLast  String?
+  email         String?
+  phone         String?
+  cell          String?
+
+  billingAddress  String?
+  billingCity     String?
+  billingState    String?
+  billingZip      String?
+  deliveryAddress String?
+  deliveryCity    String?
+  deliveryState   String?
+  deliveryZip     String?
+
+  gallery       String? // selling gallery, e.g. "Boynton Beach, FL"
+  // The NetSuite sales-center segment id (cseg_sales_center) — the selling
+  // showroom. Resolves to a Location via Location.netsuiteSalesCenterId, which
+  // carries the Region + Division for sales roll-ups. Stored raw so a re-mapping
+  // of showrooms never needs an order re-sync.
+  salesCenterId Int?
+  gtlId         String? // "GTL ID" (FSA, or NetSuite custbody_pg_gtl)
+  repId         String? // "REP ID" on the FSA
+  salesRepName  String?
+  // Commission ids synced from NetSuite custom fields (custbody_pg_*).
+  salesRep1Id   String?
+  salesRep2Id   String?
+  vpId          String?
+  regionalId    String?
+
+  purchasedAt        DateTime?
+  requestedTimeframe String? // "3-6 WEEKS" as written on the agreement
+  loadDate           DateTime?     @db.Date // set by Scheduling when the order goes on a trip
+  deliveryTripId     String? // the trip this order is scheduled on — whole order, one trip
+  deliveryTrip       DeliveryTrip? @relation("OrderDeliveryTrip", fields: [deliveryTripId], references: [id])
+
+  orderTotalCents    Int?
+  tradeInCreditCents Int?
+  tradeInFeeCents    Int?
+  storageFeeCents    Int?
+  subtotalCents      Int?
+  salesTaxCents      Int?
+  freightCents       Int?
+  totalCents         Int?
+  // What the agreement PRINTS as the down payment. Money actually taken is
+  // recorded as OrderPayment rows by the person entering the order, because we
+  // have to know which method it came in on. This stays as the cross-check.
+  downPaymentCents   Int?
+  balanceDueCents    Int?
+
+  // Which gas supply the appliances are configured for. Printed on the
+  // agreement as "Fuel type: ..."; drives the LP/NG variant of every gas item.
+  gasType GasType?
+
+  // Verano For Life is a lifetime membership, not something the warehouse
+  // ships, so it lives on the order rather than as a line.
+  veranoForLife     Boolean @default(false)
+  veranoForLifeTier String?
+
+  taxFree        Boolean @default(false)
+  freightInTotal Boolean @default(false)
+
+  // Paid in full with all but $1,000 taken by check or wire, so we paid no card
+  // or financing fee — the rep earns an extra 1%. The employee confirms it
+  // (there are timing rules only they can check) and it stays editable, because
+  // a mislabelled one has to be fixable.
+  paidInFullOnePercent    Boolean   @default(false)
+  paidInFullConfirmedAt   DateTime?
+  paidInFullConfirmedById String?
+
+  fraudCheckStatus FraudCheckStatus @default(NOT_REQUIRED)
+  fraudCheckNote   String?
+
+  note        String?
+  createdById String?
+  createdBy   User?    @relation("OrderCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  islands         OrderIsland[]
+  lines           OrderLine[]
+  documents       OrderDocument[]
+  events          OrderEvent[]
+  payments        OrderPayment[]
+  // A self-reported PGI sales entry reconciled to this order (future matching).
+  salesEntryMatch SalesEntry?     @relation("SalesEntryMatchedOrder")
+
+  @@index([status])
+  @@index([posOrderNo])
+  @@index([loadDate])
+  @@index([deliveryTripId])
+  @@index([customerLast])
+  @@index([fraudCheckStatus])
+  @@index([netsuiteReviewStatus])
+  @@index([salesCenterId])
+  @@index([isHistorical])
+}
+
+// Money actually taken, one row per payment. Deliberately not parsed from the
+// agreement: we need the METHOD, because check and wire cost us nothing while a
+// card or GreenSky carries a fee, and that is what the 1% rep bonus turns on.
+// More payments get added over the life of an order as the balance comes in.
+model OrderPayment {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  method      PaymentMethod
+  amountCents Int
+  reference   String? // cheque number, auth code, wire reference
+  receivedAt  DateTime?
+  note        String?
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+
+  @@index([orderId])
+  @@index([method])
+}
+
+// One configured island on an order. `attributes` holds the decoded config keyed
+// by the SKU grammar's segment keys, so the same object composes BOTH SKUs via
+// composeSku() — that is the whole point: configuration in, SKUs out.
+model OrderIsland {
+  id            String     @id @default(cuid())
+  orderId       String
+  order         Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  position      Int        @default(0)
+  role          IslandRole
+  styleCode     String // "GX10" / "MA10"
+  grillPosition String? // left | right | center | double | hide, as the source said
+
+  attributes Json
+
+  baseSku       String?
+  baseProductId String?
+  baseProduct   Product? @relation("OrderIslandBase", fields: [baseProductId], references: [id])
+  topSku        String?
+  topProductId  String?
+  topProduct    Product? @relation("OrderIslandTop", fields: [topProductId], references: [id])
+  // The uncut top this one would be cut from. Recorded for VISIBILITY ONLY —
+  // glass is not cut until the customer is scheduled, so no GlassMod is created.
+  topBlankSku   String?
+
+  lines OrderLine[]
+
+  @@index([orderId])
+}
+
+// A pickable line. Everything the warehouse has to produce for this order:
+// the bases, the tops, every appliance and accessory, and exploded shade kits.
+model OrderLine {
+  id        String          @id @default(cuid())
+  orderId   String
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  islandId  String?
+  island    OrderIsland?    @relation(fields: [islandId], references: [id], onDelete: SetNull)
+  origin    OrderLineOrigin @default(MANUAL)
+  productId String?
+  product   Product?        @relation(fields: [productId], references: [id])
+  sku       String? // composed/typed SKU even when no product resolved
+  rawLabel  String? // exactly what the PDF or configurator called it
+  qty       Int             @default(1)
+  note      String?
+  createdAt DateTime        @default(now())
+
+  // NetSuite sync: the transactionline key (idempotent per-line upsert), the
+  // estimated main-warehouse unit COGS while open, and the true unit COGS locked
+  // in at ship (dispatch delivery sign-off).
+  netsuiteLineId    String?
+  estCostCents      Int?
+  costSnapshotCents Int?
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([islandId])
+}
+
+// An uploaded Final Sales Agreement (or an addendum to one). The extracted text
+// and its parse are stored, NOT the PDF bytes — a 1.3 MB file per order does not
+// belong in Postgres. `sha256` makes a re-upload of the same file a no-op.
+model OrderDocument {
+  id            String            @id @default(cuid())
+  orderId       String
+  order         Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kind          OrderDocumentKind @default(ORIGINAL)
+  filename      String
+  sha256        String
+  extractedText String
+  parsedJson    Json?
+  uploadedById  String?
+  uploadedBy    User?             @relation(fields: [uploadedById], references: [id])
+  uploadedAt    DateTime          @default(now())
+
+  @@index([orderId])
+  @@index([sha256])
+}
+
+// Append-only activity log. Every mutation of an order records who and when,
+// because addendums rewrite an order after it was agreed.
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      String // CREATED | ADDENDUM_APPLIED | LINE_ADDED | ISLAND_EDITED | ...
+  summary   String
+  detail    Json?
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([orderId, createdAt])
+}
+
+// The decode catalogue: one row per configurator option. Seeded in code from the
+// option tables recovered from the configurator bundle (lib/configurator-catalogue.ts),
+// then editable here so an option change does not need a deploy.
+//
+// The URL parser matches on (param, code); the PDF parser matches on label or
+// one of `aliases` (the agreement words some options differently — the
+// configurator says "Fridge - Stainless Trim Kit", the FSA says "Bar Fridge -
+// Stainless Trim Kit"). Same table both ways, so the two paths cannot drift.
+model ConfigOption {
+  id      String   @id @default(cuid())
+  param   String // ISLAND | BAR_ISLAND | GRILLS | STAINLESS | TOP | FOOTREST | ACCESS_DOORS | COMBO | SHADE | HAPPY | STOOLS | STONE | SIDING | PATIOS
+  code    String // the raw token: "7", "double", "parallel"
+  label   String
+  aliases String[]
+
+  // Effect on the island configuration: attrValue sets a segment outright
+  // (style, siding, audio); attrDelta increments a count (fridges, drawerTrash).
+  attrKey   String?
+  attrValue String?
+  attrDelta Int?
+
+  // The pickable lines this option also adds, as `[{ label, qty }]`. Most
+  // options do BOTH — the base carries the cutout, the appliance itself is a
+  // separate physical unit — and some are whole kits (a pergola explodes into
+  // ~20 parts). Deliberately LABELS, not product ids: only 3 of the 29 shade-kit
+  // part names exist as products today, so lines resolve at derive time through
+  // the product master and then PickAlias, and anything left over becomes an
+  // unmatched line the user maps once.
+  lines Json?
+
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+
+  @@unique([param, code])
+  @@index([param])
+}
+
+// -----------------------------------------------------------------------------
+// PGI Event Tracker — home shows / boat shows the direct (PGI) sales teams work.
+// A ShowEvent has 1..n date spans (split dates are common: Thu–Sun two weeks
+// running), extensible cost line items (budget vs actual), a staff roster + a
+// leader, and a per-day shift schedule. Promoters and Series are shared reference
+// entities: a promoter runs many shows; a series ties a recurring show across
+// years for at-a-glance history. Sales are tied in later via OrderType.SHOW.
+// -----------------------------------------------------------------------------
+
+enum ShowEventStatus {
+  PLANNED
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+// Cost buckets for a show. Extensible list kept as an enum so totals can roll up
+// by type; OTHER + a free-text label covers anything unusual.
+enum ShowCostType {
+  BOOTH
+  ELECTRICITY
+  INTERNET
+  SETUP
+  TRAVEL
+  LODGING
+  FLIGHTS
+  PERDIEM
+  FREIGHT
+  MARKETING
+  OTHER
+}
+
+// A show organizer/promoter — a reference record reused across many events.
+model Promoter {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  contactName String?
+  phone       String?
+  email       String?
+  website     String?
+  notes       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events ShowEvent[]
+
+  @@index([active])
+}
+
+// A recurring show across years (e.g. "Novi Home Show"), so its events line up for
+// year-over-year comparison and the "do it again?" decision.
+model ShowSeries {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  notes     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events ShowEvent[]
+
+  @@index([active])
+}
+
+model ShowEvent {
+  id        String          @id @default(cuid())
+  name      String
+  shortName String? // compact label for dense views (scoreboard rings); falls back to name
+  status    ShowEventStatus @default(PLANNED)
+
+  seriesId   String?
+  series     ShowSeries? @relation(fields: [seriesId], references: [id], onDelete: SetNull)
+  promoterId String?
+  promoter   Promoter?   @relation(fields: [promoterId], references: [id], onDelete: SetNull)
+
+  // Full venue address (not just city/state).
+  venueName String?
+  address   String?
+  city      String?
+  state     String?
+  zip       String?
+
+  boothNumber String?
+  boothSize   String?
+
+  // Geocoded venue coordinates (from city/state via Open-Meteo) — drive the
+  // current-weather chip on show cards + the daily historical weather capture.
+  latitude          Float?
+  longitude         Float?
+  weatherGeocodedAt DateTime?
+
+  goalCents  Int? // the Show Goal (sales target)
+  leadCount  Int? // leads captured — a show KPI beyond sales
+  repsNeeded Int? // planning: how many sales reps this show needs to be staffed
+
+  leaderEmployeeId String?
+  leader           Employee? @relation("ShowEventLeader", fields: [leaderEmployeeId], references: [id], onDelete: SetNull)
+
+  notes String? // recap / outcome
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  createdBy   User?    @relation("ShowEventCreatedBy", fields: [createdById], references: [id])
+
+  dates       ShowEventDate[]
+  costs       ShowEventCost[]
+  staff       ShowEventStaff[]
+  shifts      ShowEventShift[]
+  weatherDays ShowWeatherDay[]
+
+  salesEntries SalesEntry[] @relation("SalesEntryShow")
+
+  @@index([status])
+  @@index([seriesId])
+  @@index([leaderEmployeeId])
+}
+
+// One day of captured weather for a show's venue, snapshotted daily by the cron
+// (Open-Meteo). Kept for year-over-year analysis — did weather move the needle?
+model ShowWeatherDay {
+  id              String    @id @default(cuid())
+  eventId         String
+  event           ShowEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  date            DateTime  @db.Date
+  tempMaxF        Float?
+  tempMinF        Float?
+  precipitationIn Float?
+  windMph         Float?
+  weatherCode     Int? // WMO code (see lib/weather.ts)
+  source          String? // "forecast" | "archive"
+  capturedAt      DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([eventId, date])
+  @@index([eventId])
+}
+
+// One date span of a show. Split dates = multiple rows (Thu–Sun, then the next
+// week's Thu–Sun). A single-day show has startDate == endDate.
+model ShowEventDate {
+  id        String    @id @default(cuid())
+  eventId   String
+  event     ShowEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  startDate DateTime  @db.Date
+  endDate   DateTime  @db.Date
+  label     String? // e.g. "Week 1"
+
+  @@index([eventId])
+}
+
+// A cost line for a show, budget vs actual, with an optional due date (booth
+// deposits, etc.) and a paid flag.
+model ShowEventCost {
+  id          String       @id @default(cuid())
+  eventId     String
+  event       ShowEvent    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  type        ShowCostType
+  label       String?
+  budgetCents Int?
+  actualCents Int?
+  dueDate     DateTime?    @db.Date
+  paid        Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+
+  @@index([eventId])
+}
+
+// The staff roster for a show (who is going). The leader is on ShowEvent.
+model ShowEventStaff {
+  id         String    @id @default(cuid())
+  eventId    String
+  event      ShowEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  role       String?
+  createdAt  DateTime  @default(now())
+
+  @@unique([eventId, employeeId])
+  @@index([eventId])
+  @@index([employeeId])
+}
+
+// A per-day shift: which employee works which day of the show, with optional
+// start/end times.
+model ShowEventShift {
+  id         String    @id @default(cuid())
+  eventId    String
+  event      ShowEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date       DateTime  @db.Date
+  startTime  String? // "09:00"
+  endTime    String? // "17:00"
+  note       String?
+
+  @@index([eventId, date])
+  @@index([employeeId])
+}
+
+// -----------------------------------------------------------------------------
+// Self-reported sales entry (the PGI "leaderboard submission"). Reps log a sale
+// right after it closes; this is NOT the canonical NetSuite Order (it is entered
+// before the order syncs, and is later RECONCILED to it via matchedOrderId). Kept
+// in its own table so it never double-counts against or pollutes the operational
+// order book / sales dashboards. One schema serves PGI now (show + show leader)
+// and the future PGD move-in (region + showroom) via nullable grouping fields.
+// Money is Int cents, matching the rest of the app.
+// -----------------------------------------------------------------------------
+model SalesEntry {
+  id       String   @id @default(cuid())
+  division Division // PGI today; PGD when the Power App migrates in
+
+  // --- Grouping -- PGI: show + leader. PGD (reserved): region + showroom. -------
+  showEventId  String?
+  showEvent    ShowEvent? @relation("SalesEntryShow", fields: [showEventId], references: [id], onDelete: SetNull)
+  showLeaderId String? // auto-filled from the show, but editable
+  showLeader   Employee?  @relation("SalesEntryShowLeader", fields: [showLeaderId], references: [id])
+  regionId     String? // reserved for PGD
+  showroomId   String? // reserved for PGD (a Location id)
+
+  // --- Rep(s) ------------------------------------------------------------------
+  salesRepId       String
+  salesRep         Employee  @relation("SalesEntryRep", fields: [salesRepId], references: [id])
+  isSplitDeal      Boolean   @default(false)
+  secondSalesRepId String?
+  secondSalesRep   Employee? @relation("SalesEntrySecondRep", fields: [secondSalesRepId], references: [id])
+
+  // --- Customer ----------------------------------------------------------------
+  customerFirst String
+  customerLast  String
+
+  // --- Deal fields (option VALUES finalized from the Power App; text for now) ---
+  dealType          String
+  saleType          String
+  priceList         String
+  grillIsland       String?
+  islandBar         String?
+  additionalIsland  String?
+  shadesOfVerano  String?
+  productTotalCents Int
+  pflFeeCents       Int? // Verano-for-Life membership fee
+
+  // --- Reconciliation to the real order (future job; nullable now) -------------
+  matchedOrderId String?   @unique
+  matchedOrder   Order?    @relation("SalesEntryMatchedOrder", fields: [matchedOrderId], references: [id], onDelete: SetNull)
+  matchedAt      DateTime?
+
+  // --- Audit / leaderboard date ------------------------------------------------
+  soldAt      DateTime? // date of sale (defaults to now on create); the leaderboard date
+  enteredById String?
+  enteredBy   User?     @relation("SalesEntryEnteredBy", fields: [enteredById], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([division])
+  @@index([showEventId])
+  @@index([salesRepId])
+  @@index([showLeaderId])
+  @@index([soldAt])
+}
+
+// Managed list of sales price lists (the PGI/PGD sales-entry "Price List" dropdown).
+// In the PGD Power App this was a SharePoint list; here it is admin-managed. The
+// value is stored as text on SalesEntry (a snapshot), so there is no FK back here.
+model PriceList {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  abbreviation String? // short code shown in dense sales tables (e.g. "MM" for Money Maker)
+  active       Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([active])
+}
