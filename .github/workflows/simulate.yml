@@ -1,0 +1,20 @@
+name: Demo simulator
+
+# Keeps the public demo lively: every ~15 minutes it asks the deployed app to
+# generate a few new orders and show sales, so the dashboards tick up and the
+# TV board fires its sale celebrations for anyone watching. The nightly reset
+# (Vercel Cron -> /api/cron/reset) wipes it back to a known-good state.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger a simulator tick
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://verano-ops.vercel.app/api/cron/simulate
