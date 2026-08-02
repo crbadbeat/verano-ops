@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { login, register, type AuthState } from "@/app/login/actions";
+import { login, register, demoLogin, type AuthState } from "@/app/login/actions";
 
 /**
  * Sign-in form. `canRegister` is true only before the first account exists — the
@@ -70,6 +70,21 @@ export default function LoginForm({ canRegister }: { canRegister: boolean }) {
                 ? "Sign in"
                 : "Create account"}
           </button>
+        </form>
+
+        <div className="mt-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-muted text-xs uppercase tracking-wide">or</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <form action={demoLogin} className="mt-4">
+          <button className="btn w-full" type="submit">
+            Try the demo →
+          </button>
+          <p className="text-muted mt-2 text-center text-xs">
+            Explore with a guest account — no signup needed. Resets nightly.
+          </p>
         </form>
 
         {canRegister && (

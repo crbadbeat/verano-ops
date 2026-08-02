@@ -65,6 +65,31 @@ export async function login(_prev: AuthState, formData: FormData): Promise<AuthS
   redirect("/");
 }
 
+// One-click "Try the demo": signs in the seeded, read-mostly guest account so a
+// visitor can explore without credentials. Only ever signs in this one fixed
+// account, and only if it exists and is active.
+const DEMO_GUEST_EMAIL = "guest@veranooutdoor.com";
+
+export async function demoLogin(): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { email: DEMO_GUEST_EMAIL } });
+  if (!user || !user.active) redirect("/login?demo=unavailable");
+
+  const assignments = await prisma.userRoleAssignment.findMany({
+    where: { userId: user.id },
+    select: { role: true },
+  });
+  const roles = [...new Set([user.role, ...assignments.map((a) => a.role)])];
+
+  await createSession({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+    name: user.name,
+    roles,
+  });
+  redirect("/");
+}
+
 export async function register(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const parsed = credsSchema.safeParse({
     email: formData.get("email"),

@@ -222,7 +222,11 @@ export async function runDemoSeed(): Promise<DemoSeedSummary> {
   const demoEmail = "guest@veranooutdoor.com";
   const users: { email: string; role: string; name: string; empId?: string; password: string; mustReset?: boolean }[] = [
     { email: adminEmail, role: "ADMIN", name: "Chris (Owner)", password: "verano-admin-2026" },
-    { email: demoEmail, role: "EXECUTIVE", name: "Demo Guest", password: "guest" },
+    // Guest gets broad operator (MANAGER) access so a visitor can explore orders,
+    // scheduling, inventory + the floor. The destructive/admin surfaces (user &
+    // permission management, hub reset) stay ADMIN-only, and the nightly reset
+    // heals anything a guest changes.
+    { email: demoEmail, role: "MANAGER", name: "Demo Guest", password: "guestdemo" },
     { email: "manager@veranooutdoor.com", role: "MANAGER", name: "Ops Manager", password: "demo1234", empId: empByIdx(created.length - 1).id },
     { email: "csr@veranooutdoor.com", role: "CSR", name: "CSR / Scheduler", password: "demo1234" },
     { email: "sales@veranooutdoor.com", role: "SALES", name: "Showroom Sales", password: "demo1234", empId: pgdReps[0].id },
