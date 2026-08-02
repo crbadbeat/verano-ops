@@ -70,7 +70,7 @@ export default function NavBar({
         >
           {logoOk ? (
             <img
-              src="/logo.png"
+              src="/logo.svg"
               alt="Verano Outdoor Living"
               className="h-8 w-auto"
               onError={() => setLogoOk(false)}

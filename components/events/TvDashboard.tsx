@@ -752,7 +752,7 @@ function Logo() {
   const [ok, setOk] = useState(true);
   if (ok) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src="/logo.png" alt="Verano Outdoor Living" className="h-9 w-auto" onError={() => setOk(false)} />;
+    return <img src="/logo.svg" alt="Verano Outdoor Living" className="h-9 w-auto" onError={() => setOk(false)} />;
   }
   return <span className="font-black tracking-tight text-lg">VERANO <span className="text-ember">GRILLS</span></span>;
 }
