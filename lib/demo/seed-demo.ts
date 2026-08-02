@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { seedPermissions } from "@/lib/permissions/seed";
 import { ensureStagingLanes, ensureInTransit } from "@/lib/locations";
+import { seedLifecycle } from "./seed-lifecycle";
 import type { Prisma } from "@prisma/client";
 
 // -----------------------------------------------------------------------------
@@ -440,7 +441,12 @@ export async function runDemoSeed(): Promise<DemoSeedSummary> {
     skipDuplicates: true,
   });
 
+  // Full operational pipeline in every stage (trips through pick/stage/QC/dispatch,
+  // transfers, returns, glass mods, manufacturing, counts).
+  const lifecycle = await seedLifecycle();
+
   return {
+    ...lifecycle,
     adminEmail,
     demoEmail,
     locations: 1 + bins.length + 17 + 1 + showrooms.length,
